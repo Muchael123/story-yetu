@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "apis": [
+    {
+      "identifier": "prodia",
+      "source": "@prodia/v1.3.0#dl31dlw7p7fes",
+      "integrity": "sha512-ia+rXuU6q+I5pYLJXPGX7f5zN3jRXe3lUl0r4YA3Q0XmRcXTFOBjy8cbiVxNQ0xmjywBS0pytx1Cf1OPaX1fGw==",
+      "installerVersion": "6.1.2"
+    }
+  ]
+}
