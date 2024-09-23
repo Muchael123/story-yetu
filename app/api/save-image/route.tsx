@@ -4,6 +4,15 @@ import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) { 
+     const convertImage = async (url: string) => {
+       try {
+         const response = await axios.get(url, { responseType: "arraybuffer" });
+         const base64Image = Buffer.from(response.data).toString("base64");
+         return base64Image;
+       } catch (e) {
+         console.log("error converting base64 image", e);
+       }
+     };
     const data = await req.json();
     const { url } = data;
     const myimg = await convertImage(url)
@@ -20,12 +29,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({imageUrl: downloadUrl})
 }
 
-export const convertImage = async (url: string) => {
-    try {
-        const response = await axios.get(url, { responseType: 'arraybuffer' });
-        const base64Image = Buffer.from(response.data).toString('base64');
-        return base64Image
-    } catch (e) {
-        console.log("error converting base64 image", e);
-    }
-};
