@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
         PartyA: phoneNumber,
         PartyB: process.env.DARAJA_SHORTCODE,
         PhoneNumber: phoneNumber,
-        CallBackURL: "https://bqdfrqwh-3000.uks1.devtunnels.ms/api/daraja-confirm", // This is a placeholder
+        CallBackURL: process.env.DARAJA_CALLBACK_URL, // This is a placeholder
         AccountReference: "M-PESA Demo",
         TransactionDesc: "Payment for goods",
       },
@@ -39,7 +39,13 @@ export async function POST(req: NextRequest) {
     );
     console.log(stkPush.data);
     if(stkPush.data.ResponseCode === "0") {
-      return NextResponse.json({ success: true, ResponseDescription: stkPush.data.ResponseDescription });
+      return NextResponse.json({
+        success: true,
+        ResponseDescription: stkPush.data.ResponseDescription,
+        CheckoutRequestID: stkPush.data.CheckoutRequestID,
+        phoneNumber: phoneNumber,
+        amount: amount,
+      });
     }else {
       return NextResponse.json({ success: false, ResponseDescription: stkPush.data.ResponseDescription });
     }

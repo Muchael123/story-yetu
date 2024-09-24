@@ -1,5 +1,8 @@
 "use client";
 import React, { useContext, useState } from "react";
+import { db } from "@/config/db";
+import { Transactions } from "@/config/schema";
+  
 import {
   Modal,
   ModalContent,
@@ -15,7 +18,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { useRouter } from "next/navigation";
 import { UserDetailContext } from "../_context/UserDetailContext";
-import { AddTransaction } from "@/functions/AddTransaction";
 
 function AddCoins() {
   const [selectedPackage, setSelectedPackage] = useState<number>(0);
@@ -24,6 +26,7 @@ function AddCoins() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const notify = (message: string) => toast.success(message);
   const { userDetails, setUserDetails } = useContext(UserDetailContext);
+  
 
   const errorNotify = (message: string) => toast.error(message);
 
@@ -78,9 +81,11 @@ function AddCoins() {
         }),
       });
       const data = await result.json();
+      console.log(data, "from daraja1");
       if (data.success) {
         notify(data.ResponseDescription);
-        AddTransaction(coinPackages[selectedPackage].price);
+        const Tres = await AddTransaction(data.amount, data.phoneNumber, data.CheckoutRequestID);
+        console.log(Tres, "from transaction");
         
       } else {
         console.log(data, "from data");
@@ -92,6 +97,26 @@ function AddCoins() {
     }
   };
 
+
+const AddTransaction = async (
+  amount: number,
+  phoneNumber: string,
+  CheckoutRequestID: string
+) => {
+  const res = db
+    .insert(Transactions)
+    .values({
+      amount: amount,
+      phoneNumber: phoneNumber,
+      CheckoutRequestID: CheckoutRequestID,
+    })
+    .returning({
+      id: Transactions.id,
+      amount: Transactions.amount,
+    });
+  return res;
+};
+  
   return (
     <div className="w-full min-h-screen overflow-hidden">
       <Modal
