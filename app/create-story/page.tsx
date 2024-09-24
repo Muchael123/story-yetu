@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import StorySubjectInput from "./_components/StorySubjectInput";
 import StoryType from "./_components/StoryType";
 import AgeGroup from "./_components/AgeGroup";
@@ -8,13 +8,15 @@ import { Button } from "@nextui-org/button";
 import { chatSession } from "@/config/GeminiAi";
 import uuid4 from "uuid4";
 import { db } from "@/config/db";
-import { storyData } from "@/config/schema";
+import { storyData, Users } from "@/config/schema";
 import CustomLoader from "./_components/CustomLoader";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import { useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
+import { UserDetailContext } from "../_context/UserDetailContext";
+import { eq } from "drizzle-orm";
 
 export interface fieldData {
   fieldValue: string;
@@ -34,6 +36,7 @@ function CreateStory() {
   const notify = (message: string) => toast.success(message);
   const errorNotify = (message: string) => toast.error(message);
   const { user } = useUser();
+  const {userDetails, setUserDetails} = useContext(UserDetailContext)
 
   const onHandleUserSelection = (data: fieldData) => {
     setFormData((prevData: any) => {
@@ -45,6 +48,14 @@ function CreateStory() {
   };
   // generate ai story
   const GenerateStory = async () => {
+    //check coins
+    const coins = userDetails?.credits
+    if (coins < 1)
+    {
+      errorNotify("Not enough coins. Please purchase")
+      router.push('/add-coins')
+      return;
+    }
     const Final_Prompt = `write a kid story on description for ${formData?.AgeGroup} years kids, ${formData?.Type} ,and all images on ${formData?.ImageStyle} style: ${formData?.storySubject}. give me 5 chapters. With detailed image text prompt for each of chapter and image prompt for story cover book with story name, all in json fields formats`;
     try {
       setLoading(true);
@@ -67,7 +78,9 @@ function CreateStory() {
       const resp: any = await SaveInDB(responseText, firebaseImageUrl);
 
       notify("story generated");
-      router?.replace(`/view-story/${resp[0]?.storyId}`);
+      await subtractCoins(coins - 1)
+      console.log(userDetails)
+      // router?.replace(`/view-story/${resp[0]?.storyId}`);
     } catch (e) {
       console.log(e);
       errorNotify("Failed to generate story, try Again");
@@ -77,6 +90,16 @@ function CreateStory() {
 
     // save in database
   };
+  const subtractCoins = async (coins:number) => {
+
+    const res = await db
+      .update(Users)
+      .set({
+        credits: coins,
+      })
+      .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress ?? '')).returning({ id: Users.id , credits: Users.credits});
+    console.log(res)
+  }
 
   const SaveInDB = async (result: any, imageUrl: string) => {
     const recordID = uuid4();

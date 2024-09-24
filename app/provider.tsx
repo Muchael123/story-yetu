@@ -22,7 +22,6 @@ function Provider({ children }: { children: React.ReactNode }) {
       .select()
       .from(Users)
       .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress ?? ""));
-    console.log(userResp, "userResp");
 
     if (!userResp.length[0]) {
       // save user to db
@@ -39,8 +38,6 @@ function Provider({ children }: { children: React.ReactNode }) {
           userImage: Users.image,
           credits: Users.credits,
         });
-
-      console.log(result[0], "result");
       setUserDetails(result[0]);
     }
   };

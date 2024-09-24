@@ -1,4 +1,5 @@
 import { user } from "@nextui-org/theme";
+import { boolean } from "drizzle-orm/mysql-core";
 import { serial, varchar, json, text, integer } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core";
 
@@ -22,5 +23,13 @@ export const Users = pgTable("Users", {
   name: varchar("name"),
   image: varchar("image"),
   role: varchar("role"),
-  credits: integer("credits").default(3),
+  credits: integer("credits").default(1),
+});
+export const Transactions = pgTable("Transactions", {
+  id: serial("id").primaryKey(),
+  CheckoutRequestID: varchar("CheckoutRequestID"),
+  amount: integer("amount"),
+  MpesaCode: varchar("MpesaReceiptNumber"),
+  phoneNumber: varchar("phoneNumber"),
+  Accepted: integer("accepted").default(0),
 });

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -8,21 +8,25 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Checkbox,
   Input,
-  Link,
 } from "@nextui-org/react";
 import { FaPhoneAlt } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+// import { useRouter } from "next/navigation";
+import { UserDetailContext } from "../_context/UserDetailContext";
+import { AddTransaction } from "@/functions/AddTransaction";
 
 function AddCoins() {
-    const [selectedPackage, setSelectedPackage] = useState<number >(0);
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const [isValid, setIsValid] = useState<boolean>(false);
-    const [phoneNumber, setPhoneNumber] = useState<string>("");
-    const notify = (message: string) => toast.success(message);
-    const errorNotify = (message: string) => toast.error(message);
-  // Add subscription packages with names and advantages
+  const [selectedPackage, setSelectedPackage] = useState<number>(0);
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [isValid, setIsValid] = useState<boolean>(false);
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const notify = (message: string) => toast.success(message);
+  const { userDetails, setUserDetails } = useContext(UserDetailContext);
+
+  const errorNotify = (message: string) => toast.error(message);
+
   const coinPackages = [
     {
       name: "Bronze Package",
@@ -49,37 +53,54 @@ function AddCoins() {
       advantages: ["Premium Access", "Bonus 5 coins", "Free Support"],
     },
   ];
-    const HandleSubmit = async () => { 
-        console.log(phoneNumber);
-        // call mpesa api
-        try {
-            const result = await fetch("/api/daraja-api", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                phoneNumber: phoneNumber,
-                amount: coinPackages[selectedPackage].price,
-            }),
-            });
-            const data = await result.json();
-            console.log(data);
-            if (data.success) {
-                notify("Payment request sent successfully");
-                
-            }
 
-        } catch (error) {
-            console.log(error);
-        }
-        // close modal
+  const handlePhoneNumberChange = (value: string) => {
+    if (value.length !== 9) {
+      setIsValid(false);
+    } else {
+      setIsValid(true);
+      setPhoneNumber("254" + value);
     }
+  };
+
+  const HandleSubmit = async () => {
+    
+    console.log(phoneNumber, "calling mpesa api", userDetails.credits);
+    try {
+      const result = await fetch("/api/daraja-api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phoneNumber: phoneNumber,
+          amount: coinPackages[selectedPackage].price,
+        }),
+      });
+      const data = await result.json();
+      if (data.success) {
+        notify(data.ResponseDescription);
+        AddTransaction(coinPackages[selectedPackage].price);
+        
+      } else {
+        console.log(data, "from data");
+        errorNotify("An error occurred. Try again later");
+      }
+    } catch (error) {
+      errorNotify("An error occurred. Try again later");
+      console.log(error);
+    }
+  };
 
   return (
-    <div>
-          <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
-              <ToastContainer />
+    <div className="w-full min-h-screen overflow-hidden">
+      <Modal
+        backdrop="blur"
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        placement="top-center"
+      >
+        <ToastContainer />
         <ModalContent>
           {(onClose) => (
             <>
@@ -90,20 +111,11 @@ function AddCoins() {
                 <div className="text-2xl flex items-center space-x-2 text-default-400 pointer-events-none flex-shrink-0">
                   <p>+254</p>
                   <Input
-                                      autoFocus
-                                      color="primary"
-                                      type="text"
-                                      inputMode="numeric"
-                                      validate={(value) => {
-                                          if (value.length !=  9) {
-                                              setIsValid(false);
-                                              return "Phone number must be 9 digits";
-                                          }
-                                          setIsValid(true);
-                                          setPhoneNumber("+254"+value);
-                                          console.log(phoneNumber);
-                                      }
-                                      }
+                    autoFocus
+                    color="primary"
+                    type="text"
+                    inputMode="numeric"
+                    onChange={(e) => handlePhoneNumberChange(e.target.value)}
                     endContent={<FaPhoneAlt />}
                     label="Phone Number"
                     placeholder="Enter your phone number"
@@ -119,9 +131,13 @@ function AddCoins() {
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Cancel
                 </Button>
-                              <Button color="primary" isDisabled={!isValid}
-                                  
-                                  size="lg" onPress={()=>{HandleSubmit}}>
+                <Button
+                  color="primary"
+                  isDisabled={!isValid}
+                  size="lg"
+                  onPress={onClose}
+                  onClick={HandleSubmit}
+                >
                   Pay
                 </Button>
               </ModalFooter>
@@ -130,7 +146,7 @@ function AddCoins() {
         </ModalContent>
       </Modal>
 
-      <h2 className="text-primary font-extrabold text-[70px] text-center">
+      <h2 className="text-primary font-extrabold lg:text-4xl text-2xl text-center">
         PURCHASE MORE COINS
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-center gap-4 px-4 md:px-20 lg:px-40">
