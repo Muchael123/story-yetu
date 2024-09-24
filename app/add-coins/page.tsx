@@ -18,6 +18,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { useRouter } from "next/navigation";
 import { UserDetailContext } from "../_context/UserDetailContext";
+import { eq } from "drizzle-orm";
+import { usePolling } from "@/functions/usePolling";
 
 function AddCoins() {
   const [selectedPackage, setSelectedPackage] = useState<number>(0);
@@ -114,6 +116,15 @@ const AddTransaction = async (
       id: Transactions.id,
       amount: Transactions.amount,
     });
+  
+  const checkTransactionCompleted = async() => {
+    await db
+      .select()
+      .from(Transactions)
+      .where(eq(Transactions.CheckoutRequestID, CheckoutRequestID));
+  };
+  const SuccessT = usePolling(5000, checkTransactionCompleted);
+  console.log(SuccessT, "from transaction");
   return res;
 };
   

@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import StorySubjectInput from "./_components/StorySubjectInput";
 import StoryType from "./_components/StoryType";
 import AgeGroup from "./_components/AgeGroup";
@@ -46,6 +46,7 @@ function CreateStory() {
       };
     });
   };
+  
   // generate ai story
   const GenerateStory = async () => {
     //check coins
