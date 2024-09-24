@@ -28,8 +28,8 @@ export async function POST(req: NextRequest) {
         PartyB: process.env.DARAJA_SHORTCODE,
         PhoneNumber: phoneNumber,
         CallBackURL: process.env.DARAJA_CALLBACK_URL, // This is a placeholder
-        AccountReference: "M-PESA Demo",
-        TransactionDesc: "Payment for goods",
+        AccountReference: "Story-Yetu",
+        TransactionDesc: "subscription",
       },
       {
         headers: {
