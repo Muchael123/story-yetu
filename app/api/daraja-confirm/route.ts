@@ -8,12 +8,19 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
 
     const RemoveTransactionFromDB = async (CheckoutRequestID: string) => {
-        console.log("removing transaction from db");
-      const res = await db
+        console.log("removing transaction from db", CheckoutRequestID);
+        try {
+            const res = await db
         .delete(Transactions)
         .where(eq(Transactions.CheckoutRequestID, CheckoutRequestID))
         .returning({ CheckoutRequestID: Transactions.CheckoutRequestID });
       console.log("res", res);
+        } catch (error) {
+            console.log("error", error);
+            return "An error occured"
+        }
+
+      
     };
 
     try  {
@@ -28,7 +35,8 @@ export async function POST(req: NextRequest) {
             // Send email
         }
         else {
-            RemoveTransactionFromDB(data.Body.stkCallback.CheckoutRequestID);
+            const remove = await RemoveTransactionFromDB(data.Body.stkCallback.CheckoutRequestID);
+            console.log("remove", remove);
         }
         return NextResponse.json({ message: "success" });
     } catch (error) {
