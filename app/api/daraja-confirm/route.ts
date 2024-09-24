@@ -8,13 +8,14 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
 
     const RemoveTransactionFromDB = async (CheckoutRequestID: string) => {
+        console.log("removing transaction from db");
       const res = await db
         .delete(Transactions)
         .where(eq(Transactions.CheckoutRequestID, CheckoutRequestID))
         .returning({ CheckoutRequestID: Transactions.CheckoutRequestID });
       console.log("res", res);
     };
-    
+
     try  {
     const { amount, accountReference, transactionDesc } = data;
 
