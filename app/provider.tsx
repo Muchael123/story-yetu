@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import Header from "./_components/Header";
 import { db } from "@/config/db";
 import { Users } from "@/config/schema";
-import { useUser } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
 import { UserDetailContext } from "./_context/UserDetailContext";
+import { useUser } from "@clerk/nextjs";
 
 function Provider({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
@@ -58,13 +58,13 @@ function Provider({ children }: { children: React.ReactNode }) {
 
 
   return (
-    <UserDetailContext.Provider value={{ userDetails, setUserDetails }}>
-      <NextUIProvider>
-        {/* Header */}
-        <Header />
-        {children}
-      </NextUIProvider>
-    </UserDetailContext.Provider>
+      <UserDetailContext.Provider value={{ userDetails, setUserDetails }}>
+        <NextUIProvider>
+          {/* Header */}
+          <Header />
+          {children}
+        </NextUIProvider>
+      </UserDetailContext.Provider>
   );
 }
 
