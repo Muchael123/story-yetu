@@ -118,10 +118,14 @@ const AddTransaction = async (
     });
   
   const checkTransactionCompleted = async() => {
-    await db
+   const checkT = await db
       .select()
       .from(Transactions)
-      .where(eq(Transactions.CheckoutRequestID, CheckoutRequestID));
+     .where(eq(Transactions.CheckoutRequestID, CheckoutRequestID));
+    if (checkT[0].Accepted === 1) {
+      return true;
+    }
+    return false;
   };
   const SuccessT = usePolling(5000, checkTransactionCompleted);
   console.log(SuccessT, "from transaction");

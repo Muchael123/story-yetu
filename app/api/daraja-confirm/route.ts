@@ -29,9 +29,21 @@ export async function POST(req: NextRequest) {
         console.log("data", data);
         if (data.Body.stkCallback.ResultCode === 0) { 
             console.log("success");
-            // Update user credits
-            
             // Save transaction
+            const res = await db
+              .update(Transactions)
+              .set({
+                Accepted: 1,
+                MpesaCode:
+                  data.Body.stkCallback.CallbackMetadata.Item[1].Value,
+              })
+              .where(
+                eq(
+                  Transactions.CheckoutRequestID,
+                  data.Body.stkCallback.CheckoutRequestID
+                )
+              )
+              .returning({ CheckoutRequestID: Transactions.CheckoutRequestID });
             // Send email
         }
         else {
