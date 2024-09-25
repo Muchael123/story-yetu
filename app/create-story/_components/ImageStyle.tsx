@@ -37,10 +37,10 @@ function ImageStyle({userSelection}: any) {
 
   return (
     <div>
-      <label className="text-primary text-4xl">
+      <label className="text-primary md:text-2xl text-xl font-semibold lg:text-4xl">
         4. What style of image would you like to use?
       </label>
-      <div className="grid grid-cols-3 gap-5 mt-3 p-3 ">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-5 mt-3 p-3">
         {ageList.map((age, index) => (
           <div
             key={index}
@@ -51,7 +51,7 @@ function ImageStyle({userSelection}: any) {
                 : "grayscale"
             }`}
           >
-            <h2 className="absolute bottom-5 text-white font-bold text-2xl text-center">
+            <h2 className="absolute bottom-5 text-white font-bold text-xl md:text-2xl text-center">
               {age.label}
             </h2>
             <Image

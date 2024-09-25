@@ -49,6 +49,7 @@ function CreateStory() {
   
   // generate ai story
   const GenerateStory = async () => {
+    console.log("Generate story", formData);
     const coins = userDetails?.credits;
 
     if (coins < 1) {
@@ -154,14 +155,14 @@ function CreateStory() {
   return (
     <div className="p-10 md:px-20 px:40">
       <ToastContainer />
-      <h2 className="text-primary font-extrabold text-[70px] text-center">
+      <h2 className="text-primary font-extrabold text-3xl lg:text-[70px] text-center">
         CREATE YOUR STORY
       </h2>
-      <p className="text-2xl text-primary text-center">
+      <p className="lg:text-2xl text-lg text-primary text-center pt-5 md:pt-7 lg:pt-12">
         Unleash Your Imagination with AI: Weave Captivating Stories Like Never
         Before! One story at a time, let's create a world of our own.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-40">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-12 lg:mt-30">
         {/* story subjec */}
         <StorySubjectInput userSelection={onHandleUserSelection} />
         {/* story type */}

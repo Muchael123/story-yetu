@@ -19,6 +19,11 @@ function AgeGroup({userSelection}: any) {
       imageUrl: "/58years.jpg",
       isFree: true,
     },
+    {
+      label: "9 - 12 Years",
+      imageUrl: "/9-12.webp",
+      isFree: true,
+    },
   ];
   const [selectedStory, setSelectedStory] = useState<string>("");
    const onUserSelect = (story: optionList) => {
@@ -30,10 +35,10 @@ function AgeGroup({userSelection}: any) {
    };
   return (
     <div>
-      <label className="text-primary text-4xl">
+      <label className="text-primary md:text-2xl text-xl font-semibold lg:text-4xl">
         3. What age group is your story for?
       </label>
-      <div className="grid grid-cols-3 gap-5 mt-3 p-3 ">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-5 mt-3 p-3">
         {ageList.map((age, index) => (
           <div
             key={index}
@@ -52,7 +57,7 @@ function AgeGroup({userSelection}: any) {
               alt={age.label}
               width={300}
               height={400}
-              className="object-cover h-[250px] rounded-3xl"
+              className="object-cover h-[150px] bg-primary lg:h-[ rounded-3xl"
             />
           </div>
         ))}

@@ -1,5 +1,4 @@
 "use client";
-import { on } from 'events';
 import Image from 'next/image';
 import React, { useState } from 'react'
 
@@ -22,7 +21,7 @@ function StoryType({userSelection}: any) {
       },
       {
         label: "Educational Story",
-        imageUrl: "/bible.jpg",
+        imageUrl: "/school.jpg",
         isFree: true,
       },
       
@@ -37,10 +36,10 @@ function StoryType({userSelection}: any) {
   }
   return (
     <div>
-      <label className="text-primary text-4xl">
+      <label className="text-primary md:text-2xl text-xl font-semibold lg:text-4xl">
         2. What type of story are you creating?
       </label>
-      <div className="grid grid-cols-3 gap-5 mt-3 p-3 ">
+      <div className="grid grid-cols-2  lg:grid-cols-3 gap-2 lg:gap-5 mt-3 p-3 ">
         {storyList.map((story: optionList, index) => (
           <div
             key={index}
@@ -51,7 +50,7 @@ function StoryType({userSelection}: any) {
                 : "grayscale"
             }`}
           >
-            <h2 className="absolute bottom-5 text-white font-bold text-2xl text-center">
+            <h2 className="absolute bottom-5 lg:left-6 text-white font-bold text-lg md:text-xl lg:text-2xl text-center">
               {story.label}
             </h2>
             <Image
@@ -59,7 +58,7 @@ function StoryType({userSelection}: any) {
               alt={story.label}
               width={300}
               height={400}
-              className="object-cover h-[250px] rounded-3xl"
+              className="object-cover h-[150px] md:h-[250px] rounded-3xl"
             />
           </div>
         ))}
