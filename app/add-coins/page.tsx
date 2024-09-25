@@ -134,13 +134,13 @@ const AddTransaction = async (
   
   return (
     <div className="w-full min-h-screen overflow-hidden">
+      <ToastContainer />
       <Modal
         backdrop="blur"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="top-center"
       >
-        <ToastContainer />
         <ModalContent>
           {(onClose) => (
             <>
@@ -157,6 +157,8 @@ const AddTransaction = async (
                     inputMode="numeric"
                     onChange={(e) => handlePhoneNumberChange(e.target.value)}
                     endContent={<FaPhoneAlt />}
+                    isInvalid={!isValid}
+                    errorMessage="Phone number must be 9 digits" 
                     label="Phone Number"
                     placeholder="Enter your phone number"
                     variant="flat"
