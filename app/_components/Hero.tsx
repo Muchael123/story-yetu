@@ -9,7 +9,7 @@ function Hero() {
       <div className="px-10 md:px-28 lg:px-44 mt-10 h-screen">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div>
-            <h2 className="lg:text-7xl text-4xl text-primary font-extrabold">
+            <h2 className="lg:text-7xl md:text-3xl text-xl text-primary font-extrabold">
               Create enchanting stories for children in just minutes.
             </h2>
             <p className="lg:text-2xl text-lg text-primary font-light">

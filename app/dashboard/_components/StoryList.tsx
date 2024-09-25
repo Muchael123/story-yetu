@@ -28,7 +28,6 @@ function StoryList() {
   const { user, isLoaded, isSignedIn } = useUser();
   const [loading, setLoading] = useState<boolean>();
   
-  console.log(user, isLoaded);
   
   const [storyList, setStoryList] = useState<storyItem[]>()
   useEffect(() => {
@@ -47,7 +46,7 @@ function StoryList() {
               user?.primaryEmailAddress?.emailAddress ?? ""
             )
           ).orderBy(desc(storyData.id));
-        console.log(res, "response");
+        
         setStoryList(res);
         setLoading(false);
       }

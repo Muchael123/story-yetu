@@ -70,7 +70,6 @@ function AddCoins() {
 
   const HandleSubmit = async () => {
     
-    console.log(phoneNumber, "calling mpesa api", userDetails.credits);
     try {
       const result = await fetch("/api/daraja-api", {
         method: "POST",
@@ -83,19 +82,16 @@ function AddCoins() {
         }),
       });
       const data = await result.json();
-      console.log(data, "from daraja1");
       if (data.success) {
         notify(data.ResponseDescription);
         const Tres = await AddTransaction(data.amount, data.phoneNumber, data.CheckoutRequestID);
-        console.log(Tres, "from transaction");
         
       } else {
-        console.log(data, "from data");
         errorNotify("An error occurred. Try again later");
       }
     } catch (error) {
       errorNotify("An error occurred. Try again later");
-      console.log(error);
+      
     }
   };
 
@@ -128,7 +124,7 @@ const AddTransaction = async (
     return false;
   };
   const SuccessT = usePolling(5000, checkTransactionCompleted);
-  console.log(SuccessT, "from transaction");
+  
   return res;
 };
   

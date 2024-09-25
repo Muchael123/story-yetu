@@ -22,7 +22,7 @@ function Provider({ children }: { children: React.ReactNode }) {
         .select()
         .from(Users)
         .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress ?? ""));
-      console.log(userResp, "userResp");
+      
 
       // If user does not exist, insert them into the database
       if (!userResp.length) {
@@ -56,7 +56,6 @@ function Provider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
-  console.log(userDetails, "userDetails");
 
   return (
     <UserDetailContext.Provider value={{ userDetails, setUserDetails }}>

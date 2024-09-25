@@ -37,7 +37,6 @@ function ViewStory({ params }) {
         errorNotify("Check your internet connection")
        }
     }
-  console.log(story?.output);
 
   return (
     <div className="px-10 md:px-20 lg:px-40">

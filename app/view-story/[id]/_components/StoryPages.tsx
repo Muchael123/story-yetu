@@ -10,13 +10,11 @@ function StoryPages({ storyChapter }: any) {
     const synth = window.speechSynthesis;
     const utterThis = new SpeechSynthesisUtterance(speech);
     utterThis.onend = () => {
-      console.log("Speech has finished.");
     };
     utterThis.onerror = (event) => {
       console.error("Speech synthesis error: ", event.error);
     };
     synth.speak(utterThis);
-    console.log("Speaking:", speech);
   };
 
     return (

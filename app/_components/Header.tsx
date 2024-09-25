@@ -42,13 +42,13 @@ function Header() {
           />
           <NavbarBrand>
             <Image src={"/logo.svg"} alt="logo" width={40} height={40} />
-            <h1 className="ml-2 text-[#5253A3] lg:text-2xl text-lg font-bold">
+            <h1 className="ml-2 text-[#5253A3] lg:text-2xl hidden md:flex text-lg font-bold">
               <span className="text-green-700 lg:text-3xl text-xl">Story</span>{" "}
               Yetu
             </h1>
           </NavbarBrand>
         </NavbarContent>
-        <NavbarContent justify="center" className="hidden md:flex">
+        <NavbarContent justify="center" className="hidden md:flex justify-center">
           {MenuList.map((item, index) => (
             <NavbarItem
               key={index}

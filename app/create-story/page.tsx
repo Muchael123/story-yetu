@@ -65,7 +65,7 @@ function CreateStory() {
       // Generate story from AI
       const result = await chatSession.sendMessage(Final_Prompt);
       const responseText = await result?.response.text();
-      console.log(responseText);
+      
 
       // Image generation process
       const story = JSON.parse(responseText);
@@ -73,7 +73,7 @@ function CreateStory() {
         prompt: `Add text with title ${story?.story_title} in bold text for book cover, ${story?.cover_image_prompt} in an African setup, in bold text for book cover`,
       });
       const AIimage = imageResp.data.imageUrl;
-      console.log(AIimage);
+      
 
       const imageResult = await axios.post("/api/save-image", {
         url: AIimage,
@@ -98,7 +98,6 @@ function CreateStory() {
   };
 
   const subtractCoins = async (coins: number) => {
-    console.log("Subtracting coins:", coins, user?.primaryEmailAddress?.emailAddress, userDetails);
     try {
       const res = await db
         .update(Users)
@@ -126,10 +125,10 @@ function CreateStory() {
 
   const SaveInDB = async (result: any, imageUrl: string) => {
     const recordID = uuid4();
-    console.log(result);
+
     try {
       let parsedResult = JSON.parse(result);
-      console.log(parsedResult);
+      
 
       const final_result = await db
         .insert(storyData)
@@ -146,7 +145,7 @@ function CreateStory() {
           userImage: user?.imageUrl,
         })
         .returning({ storyId: storyData?.storyId });
-      console.log(final_result);
+      
       return final_result;
     } catch (e) {
       console.log(e);
