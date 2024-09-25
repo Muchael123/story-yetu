@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         },
       }
     );
-    console.log(stkPush.data);
+    console.log(stkPush.data, "from stkpush", process.env.DARAJA_CALLBACK_URL);
     if(stkPush.data.ResponseCode === "0") {
       return NextResponse.json({
         success: true,

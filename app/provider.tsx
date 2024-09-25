@@ -10,39 +10,53 @@ import { UserDetailContext } from "./_context/UserDetailContext";
 
 function Provider({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
-  useEffect(() => {
-    user && saveNewUserIfNotExists();
-  }, [user]);
+  const [userDetails, setUserDetails] = useState<any>(null);
 
-  const [userDetails, setUserDetails] = useState<any>();
-
+  // Function to check if user exists and insert if not
   const saveNewUserIfNotExists = async () => {
-    // check if user exists in db
-    const userResp: any = await db
-      .select()
-      .from(Users)
-      .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress ?? ""));
+    try {
+      if (!user) return;
 
-    if (!userResp.length[0]) {
-      // save user to db
-      const result = await db
-        .insert(Users)
-        .values({
-          email: user?.primaryEmailAddress?.emailAddress,
-          name: user?.fullName,
-          image: user?.imageUrl,
-        })
-        .returning({
-          userEmail: Users.email,
-          userName: Users.name,
-          userImage: Users.image,
-          credits: Users.credits,
-        });
-      setUserDetails(result[0]);
+      // Check if the user already exists
+      const userResp: any = await db
+        .select()
+        .from(Users)
+        .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress ?? ""));
+      console.log(userResp, "userResp");
+
+      // If user does not exist, insert them into the database
+      if (!userResp.length) {
+        const result = await db
+          .insert(Users)
+          .values({
+            email: user?.primaryEmailAddress?.emailAddress,
+            name: user?.fullName,
+            image: user?.imageUrl,
+          })
+          .returning({
+            userEmail: Users.email,
+            userName: Users.name,
+            userImage: Users.image,
+            credits: Users.credits,
+          });
+
+        setUserDetails(result[0]); // Set user details for the new user
+      } else {
+        setUserDetails(userResp[0]); // Set user details for existing user
+      }
+    } catch (error) {
+      console.error("Error saving or fetching user:", error);
     }
   };
 
-  // if not, save user to db
+  // Use effect to run on user change
+  useEffect(() => {
+    if (user) {
+      saveNewUserIfNotExists();
+    }
+  }, [user]);
+
+  console.log(userDetails, "userDetails");
 
   return (
     <UserDetailContext.Provider value={{ userDetails, setUserDetails }}>

@@ -49,24 +49,28 @@ function CreateStory() {
   
   // generate ai story
   const GenerateStory = async () => {
-    //check coins
-    const coins = userDetails?.credits
-    if (coins < 1)
-    {
-      errorNotify("Not enough coins. Please purchase")
-      router.push('/add-coins')
+    const coins = userDetails?.credits;
+
+    if (coins < 1) {
+      errorNotify("Not enough coins. Please purchase");
+      router.push("/add-coins");
       return;
     }
+
     const Final_Prompt = `write a kid story on description for ${formData?.AgeGroup} years kids, ${formData?.Type} ,and all images on ${formData?.ImageStyle} style: ${formData?.storySubject}. give me 5 chapters. With detailed image text prompt for each of chapter and image prompt for story cover book with story name, all in json fields formats`;
+
     try {
       setLoading(true);
+
+      // Generate story from AI
       const result = await chatSession.sendMessage(Final_Prompt);
-      const responseText = result?.response.text();
+      const responseText = await result?.response.text();
       console.log(responseText);
-      // image generation
+
+      // Image generation process
       const story = JSON.parse(responseText);
       const imageResp = await axios.post("/api/generate-image", {
-        prompt: `Add text with title ${story?.story_title} in bold text for book cover, ${story?.cover_image_prompt}in an african setup, in bold text for book cover`,
+        prompt: `Add text with title ${story?.story_title} in bold text for book cover, ${story?.cover_image_prompt} in an African setup, in bold text for book cover`,
       });
       const AIimage = imageResp.data.imageUrl;
       console.log(AIimage);
@@ -78,29 +82,47 @@ function CreateStory() {
 
       const resp: any = await SaveInDB(responseText, firebaseImageUrl);
 
-      notify("story generated");
-      await subtractCoins(coins - 1)
-      console.log(userDetails)
-      // router?.replace(`/view-story/${resp[0]?.storyId}`);
+      // Subtract coins and update context
+      await subtractCoins(coins - 1); // Ensure coins are updated before continuing
+
+      notify("Story generated successfully!");
+
+      // Redirect to view the new story
+      router?.replace(`/view-story/${resp[0]?.storyId}`);
     } catch (e) {
-      console.log(e);
-      errorNotify("Failed to generate story, try Again");
+      console.error(e);
+      errorNotify("Failed to generate story, please try again");
     } finally {
       setLoading(false);
     }
-
-    // save in database
   };
-  const subtractCoins = async (coins:number) => {
 
-    const res = await db
-      .update(Users)
-      .set({
-        credits: coins,
-      })
-      .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress ?? '')).returning({ id: Users.id , credits: Users.credits});
-    console.log(res)
-  }
+  const subtractCoins = async (coins: number) => {
+    console.log("Subtracting coins:", coins, user?.primaryEmailAddress?.emailAddress, userDetails);
+    try {
+      const res = await db
+        .update(Users)
+        .set({
+          credits: coins,
+        })
+        .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress ?? ""))
+        .returning({ id: Users.id, credits: Users.credits });
+
+      // Update the context with new user details (new coin balance)
+      if (res.length > 0) {
+        const updatedUserDetails = {
+          ...userDetails,
+          credits: coins, // update the credits in the context
+        };
+        setUserDetails(updatedUserDetails); // update the userDetails context
+      }
+
+      return res;
+    } catch (error) {
+      console.error("Failed to update coins:", error);
+      throw error; // propagate the error if needed
+    }
+  };
 
   const SaveInDB = async (result: any, imageUrl: string) => {
     const recordID = uuid4();
@@ -124,6 +146,7 @@ function CreateStory() {
           userImage: user?.imageUrl,
         })
         .returning({ storyId: storyData?.storyId });
+      console.log(final_result);
       return final_result;
     } catch (e) {
       console.log(e);
