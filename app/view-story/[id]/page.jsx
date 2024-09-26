@@ -10,6 +10,7 @@ import LastPage from "./_components/LastPage";
 import { Button } from "@nextui-org/button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import {
   BiSolidRightArrowCircle,
   BiSolidLeftArrowCircle,
@@ -24,7 +25,6 @@ function ViewStory({ params }) {
   const [isMobile, setIsMobile] = useState(false); // State to track if it's mobile screen
 
   useEffect(() => {
-    // Track screen size
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768); // Consider screens <= 768px as mobile
     };
@@ -61,7 +61,7 @@ function ViewStory({ params }) {
       <h2 className="font-bold text-xl md:text-2xl lg:text-4xl p-3 md:p-5 text-white bg-primary">
         {story?.output?.story_title}
       </h2>
-      <div className="relative">
+      <div className="md:relative flex justify-center items-center pt-3">
         {story && (
           //   @ts-ignore
           <HTMLFlipBook
