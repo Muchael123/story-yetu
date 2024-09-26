@@ -32,4 +32,6 @@ export const Transactions = pgTable("Transactions", {
   MpesaCode: varchar("MpesaReceiptNumber"),
   phoneNumber: varchar("phoneNumber"),
   Accepted: integer("accepted").default(0),
+  credits: integer("credits"),
+  userEmail: varchar("userEmail"),
 });

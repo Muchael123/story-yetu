@@ -1,40 +1,37 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 export function usePolling(
   ms: number,
   asyncPollingFunction: () => Promise<boolean>
 ) {
-  const [success, setSuccess] = useState(false); // State to track if the transaction is found
-  const router = useRouter();
-
+  const [success, setSuccess] = useState(false);
   useEffect(() => {
-    const intervalId = setInterval(async () => {
-      try {
-        // Call the async function to check the transaction
-        const transactionFound = await asyncPollingFunction();
+    console.log("Polling started..."); // Added log for when polling starts
 
-        // If transaction is found, stop the polling
+    const intervalId = setInterval(async () => {
+      console.log("Polling check at interval..."); // Log at each interval
+      try {
+        const transactionFound = await asyncPollingFunction();
+        console.log("Transaction found status:", transactionFound); // Log result of polling check
         if (transactionFound) {
           setSuccess(true);
-          clearInterval(intervalId);
+          clearInterval(intervalId); // Stop polling if found
         }
       } catch (error) {
-        console.error("Error checking transaction:", error);
+        console.error("Error during polling:", error);
       }
     }, ms);
 
-    // Stop polling after 1.5 minutes (90000ms)
     const timeoutId = setTimeout(() => {
+      console.log("Polling stopped after 2 minutes");
       clearInterval(intervalId);
-    }, 90000);
+    }, 120000); // Poll for 2 minutes
 
-    // Clean up the interval and timeout on component unmount
     return () => {
       clearInterval(intervalId);
       clearTimeout(timeoutId);
     };
   }, [ms, asyncPollingFunction]);
 
-  return success; // Return the success state
+  return success;
 }

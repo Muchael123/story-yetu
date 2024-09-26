@@ -20,6 +20,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { UserDetailContext } from "../_context/UserDetailContext";
 import { eq } from "drizzle-orm";
 import { usePolling } from "@/functions/usePolling";
+import { check } from "drizzle-orm/mysql-core";
+import { a } from "framer-motion/client";
 
 function AddCoins() {
   const [selectedPackage, setSelectedPackage] = useState<number>(0);
@@ -69,7 +71,6 @@ function AddCoins() {
   };
 
   const HandleSubmit = async () => {
-    
     try {
       const result = await fetch("/api/daraja-api", {
         method: "POST",
@@ -81,17 +82,24 @@ function AddCoins() {
           amount: coinPackages[selectedPackage].price,
         }),
       });
+console.log(phoneNumber, coinPackages[selectedPackage].price)
       const data = await result.json();
       if (data.success) {
         notify(data.ResponseDescription);
-        const Tres = await AddTransaction(data.amount, data.phoneNumber, data.CheckoutRequestID);
-        
+
+        const transactionResult = await AddTransaction(
+          data.amount,
+          data.phoneNumber,
+          data.CheckoutRequestID,
+          userDetails?.userEmail,
+          coinPackages[selectedPackage].coins
+        );
+        console.log(transactionResult);
       } else {
         errorNotify("An error occurred. Try again later");
       }
     } catch (error) {
       errorNotify("An error occurred. Try again later");
-      
     }
   };
 
@@ -99,7 +107,9 @@ function AddCoins() {
 const AddTransaction = async (
   amount: number,
   phoneNumber: string,
-  CheckoutRequestID: string
+  CheckoutRequestID: string,
+  email: string,
+  credits: number
 ) => {
   const res = db
     .insert(Transactions)
@@ -107,26 +117,17 @@ const AddTransaction = async (
       amount: amount,
       phoneNumber: phoneNumber,
       CheckoutRequestID: CheckoutRequestID,
+      userEmail: email,
+      credits: credits,
     })
     .returning({
       id: Transactions.id,
       amount: Transactions.amount,
+      CheckoutRequestID: Transactions.CheckoutRequestID,
     });
-  
-  const checkTransactionCompleted = async() => {
-   const checkT = await db
-      .select()
-      .from(Transactions)
-     .where(eq(Transactions.CheckoutRequestID, CheckoutRequestID));
-    if (checkT[0].Accepted === 1) {
-      return true;
-    }
-    return false;
-  };
-  const SuccessT = usePolling(5000, checkTransactionCompleted);
-  
   return res;
 };
+  
   
   return (
     <div className="w-full min-h-screen overflow-hidden">
