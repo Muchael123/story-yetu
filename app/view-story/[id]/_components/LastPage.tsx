@@ -48,24 +48,24 @@ function LastPage() {
         </Button>
       </div>
       {showShare && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div className="grid  grid-cols-3 md:grid-cols-4 gap-5 ">
           <EmailShareButton url={shareUrl} subject={title}>
-            <EmailIcon size={32} round />
+            <EmailIcon size={40} round />
           </EmailShareButton>
           <FacebookShareButton url={shareUrl}>
-            <FacebookIcon size={32} round />
+            <FacebookIcon size={40} round />
           </FacebookShareButton>
           <LinkedinShareButton url={shareUrl}>
-            <LinkedinIcon size={32} round />
+            <LinkedinIcon size={40} round />
           </LinkedinShareButton>
           <TelegramShareButton url={shareUrl}>
-            <TelegramIcon size={32} round />
+            <TelegramIcon size={40} round />
           </TelegramShareButton>
           <TwitterShareButton url={shareUrl} title={title}>
-            <XIcon size={32} round />
+            <XIcon size={40} round />
           </TwitterShareButton>
-          <WhatsappShareButton url={shareUrl} title={title}>
-            <WhatsappIcon size={32} round />
+          <WhatsappShareButton  url={shareUrl} title={title}>
+            <WhatsappIcon size={40} round />
           </WhatsappShareButton>
         </div>
       )}

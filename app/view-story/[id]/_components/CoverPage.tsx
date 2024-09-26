@@ -4,7 +4,7 @@ import React from 'react'
 function CoverPage({ imageUrl }: any) {
   return (
       <div>
-          <Image src={imageUrl} alt="cover image" width={500} height={500} />
+          <Image src={imageUrl} className='w-full h-full object-fill' alt="cover image" width={500} height={500} />
     </div>
   )
 }

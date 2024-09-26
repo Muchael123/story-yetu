@@ -73,7 +73,7 @@ function ViewStory({ params }) {
             maxHeight={1533}
             maxShadowOpacity={0.5}
             showCover={true}
-            height={733}
+            height={500}
             width={500} // default width for non-responsive handling
             useMouseEvents={isMobile} // Enable mouse events on small screens
             mobileScrollSupport={false}
