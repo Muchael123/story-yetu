@@ -15,7 +15,8 @@ function LastPage() {
   const title = "Check out this story I just read on Story-Yetu";
   const [showShare, setShowShare] = useState(false);
   const notify = (message:string) => toast.success(message);
-  const copy =async () => {
+  const copy = async () => {
+    console.log("Copying to clipboard");
     await navigator.clipboard.writeText(shareUrl);
     notify("Link copied to clipboard");
   }
@@ -52,14 +53,14 @@ function LastPage() {
             target="_blank"
             href={`https://x.com/intent/post?text=${title}&url=${shareUrl}`}
           >
-            <FaXTwitter className="text-gray-900" size={24} />
+            <FaXTwitter className="text-gray-900" size={32} />
           </a>
           <a target="_blank" href={`whatsapp://send?text=${title} ${shareUrl}`}>
-            <FaWhatsapp className="text-green-400" size={24} />
+            <FaWhatsapp className="text-green-400" size={32} />
           </a>
-          <div onClick={() => copy()} className='cursor-pointer'>
-            <FaLink className="text-gray-400" size={24} />
-          </div>
+          <Button  onClick={() => copy()} className='cursor-pointer z-[999]'>
+            <FaLink className="text-gray-400" size={32} />
+          </Button>
         </div>
       )}
     </div>

@@ -1,5 +1,4 @@
-import { user } from "@nextui-org/theme";
-import { boolean } from "drizzle-orm/mysql-core";
+
 import { serial, varchar, json, text, integer } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core";
 
