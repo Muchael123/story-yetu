@@ -70,9 +70,12 @@ function CreateStory() {
 
       // Image generation process
       const story = JSON.parse(responseText);
+      console.log("story", story);
+
       const imageResp = await axios.post("/api/generate-image", {
-        prompt: `Add text with title ${story?.story_title} in bold text for book cover, ${story?.cover_image_prompt} in an African setup, in bold text for book cover`,
+        prompt: `Design a book cover set in an African environment. Use bold text for the title: "${story?.story_title}". Incorporate elements like African landscapes, traditional patterns, colors inspired by African culture, and any specific details from the prompt: "${story?.cover_image_prompt}".`,
       });
+
       const AIimage = imageResp.data.imageUrl;
       
 

@@ -69,7 +69,7 @@ function ViewStory({ params }) {
             size="stretch"
             minWidth={315}
             maxWidth={1000}
-            minHeight={400}
+            minHeight={500}
             maxHeight={1533}
             maxShadowOpacity={0.5}
             showCover={true}
