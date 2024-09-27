@@ -19,7 +19,7 @@ function Header() {
   const MenuList = [
     { name: "Home", href: "/" },
     { name: "Create Story", href: "/create-story" },
-    { name: "Explore story", href: "/explore" },
+    { name: "Explore Story", href: "/explore" },
     { name: "Contact", href: "/contact-us" },
   ];
 
@@ -33,16 +33,16 @@ function Header() {
   return (
     <Navbar
       isBordered
-      isMenuOpen={isMenuOpen}
+      isMenuOpen={isMenuOpen} // Tracks the menu state
       maxWidth="full"
-      onMenuOpenChange={setIsMenuOpen}
+      onMenuOpenChange={setIsMenuOpen} // Updates the menu state
     >
       {/* Left Side Content */}
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="md:hidden"
-          onClick={handleNavToggle} // Add onClick here
+          onClick={handleNavToggle} // Add onClick here to toggle menu
         />
         <NavbarBrand>
           <Link href="/" onClick={() => setIsMenuOpen(false)}>
@@ -79,7 +79,7 @@ function Header() {
       </NavbarContent>
 
       {/* Mobile Menu */}
-      <NavbarMenu isOpen={isMenuOpen}>
+      <NavbarMenu>
         {MenuList.map((item, index) => (
           <NavbarMenuItem key={index}>
             <Link href={item.href} onClick={() => setIsMenuOpen(false)}>
