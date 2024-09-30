@@ -45,10 +45,10 @@ function Header() {
           onClick={handleNavToggle} // Add onClick here to toggle menu
         />
         <NavbarBrand>
-          <Link href="/" onClick={() => setIsMenuOpen(false)}>
+          <Link className='flex flex-row gap-2 justify-center items-center' href="/" onClick={() => setIsMenuOpen(false)}>
             <Image src={"/logo.svg"} alt="logo" width={40} height={40} />
             <h1 className="ml-2 text-[#5253A3] lg:text-3xl hidden md:flex text-lg font-bold">
-              <span className="text-green-700 lg:text-3xl text-xl">Story</span>{" "}
+              <span className="text-green-700 lg:text-3xl text-xl mr-2">Story </span>
               Yetu
             </h1>
           </Link>
