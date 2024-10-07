@@ -1,0 +1,3334 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Prodia API",
+    "description": "Welcome to Prodia's API :)",
+    "termsOfService": "https://app.prodia.com/#/terms-of-service",
+    "contact": {
+      "email": "hello@prodia.com"
+    },
+    "version": "1.3.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.prodia.com/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Job Information",
+      "description": "Retrieve details about submitted jobs/generations"
+    },
+    {
+      "name": "SD 1.X Image Generation",
+      "description": "Image Generation API"
+    },
+    {
+      "name": "SDXL Image Generation",
+      "description": "SDXL Generation API"
+    },
+    {
+      "name": "Image Upscaling",
+      "description": "Image Upscaling API"
+    },
+    {
+      "name": "Utilities",
+      "description": "List of image enhancing utilities"
+    },
+    {
+      "name": "Model/Checkpoint Information",
+      "description": "List available models"
+    },
+    {
+      "name": "Lora Information",
+      "description": "List available Loras.\nGeneral Usage notation inside of a prompt: <lora:LoraName:weight>"
+    },
+    {
+      "name": "Embedding Information",
+      "description": "List available embeddings"
+    }
+  ],
+  "paths": {
+    "/sd/generate": {
+      "post": {
+        "tags": [
+          "SD 1.X Image Generation"
+        ],
+        "summary": "Create a generation",
+        "description": "Use this endpoint to start generating an image on Prodia.",
+        "operationId": "generate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "prompt"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "example": "v1-5-pruned-emaonly.safetensors [d7049739]",
+                    "description": "Model Name"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "example": "puppies in a cloud, 4k",
+                    "description": "Image Prompt"
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "example": "badly drawn",
+                    "description": "Negative Image Prompt"
+                  },
+                  "style_preset": {
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "texture",
+                      "craft-clay"
+                    ]
+                  },
+                  "steps": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Steps"
+                  },
+                  "cfg_scale": {
+                    "type": "number",
+                    "example": 7,
+                    "description": "CFG Scale"
+                  },
+                  "seed": {
+                    "type": "number",
+                    "example": -1,
+                    "description": "Seed"
+                  },
+                  "upscale": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Enable 2x Upscale"
+                  },
+                  "sampler": {
+                    "type": "string",
+                    "example": "DPM++ 2M Karras"
+                  },
+                  "width": {
+                    "type": "number",
+                    "example": 512,
+                    "minimum": 1,
+                    "maximum": 1024,
+                    "description": "Image Width"
+                  },
+                  "height": {
+                    "type": "number",
+                    "example": 512,
+                    "minimum": 1,
+                    "maximum": 1024,
+                    "description": "Image Height"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sd/transform": {
+      "post": {
+        "tags": [
+          "SD 1.X Image Generation"
+        ],
+        "summary": "Transform an existing image",
+        "description": "Use this endpoint to do an 'img2img' style generation.",
+        "operationId": "transform",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "prompt"
+                ],
+                "properties": {
+                  "imageUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "imageData": {
+                    "type": "string",
+                    "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+                    "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+                  },
+                  "model": {
+                    "type": "string",
+                    "example": "v1-5-pruned-emaonly.safetensors [d7049739]",
+                    "description": "Model Name"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "example": "puppies in a cloud, 4k",
+                    "description": "Image Prompt"
+                  },
+                  "denoising_strength": {
+                    "type": "number",
+                    "example": 0.7,
+                    "description": "Strength of image transfomation"
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "example": "badly drawn",
+                    "description": "Negative Image Prompt"
+                  },
+                  "style_preset": {
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "texture",
+                      "craft-clay"
+                    ]
+                  },
+                  "steps": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Steps"
+                  },
+                  "cfg_scale": {
+                    "type": "number",
+                    "example": 7,
+                    "description": "CFG Scale"
+                  },
+                  "seed": {
+                    "type": "number",
+                    "example": -1,
+                    "description": "Seed"
+                  },
+                  "upscale": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Enable 2x Upscale"
+                  },
+                  "sampler": {
+                    "type": "string",
+                    "example": "DPM++ 2M Karras"
+                  },
+                  "width": {
+                    "type": "number",
+                    "example": 512,
+                    "minimum": 1,
+                    "maximum": 1024,
+                    "description": "Image Width"
+                  },
+                  "height": {
+                    "type": "number",
+                    "example": 512,
+                    "minimum": 1,
+                    "maximum": 1024,
+                    "description": "Image Height"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sd/inpainting": {
+      "post": {
+        "tags": [
+          "SD 1.X Image Generation"
+        ],
+        "summary": "Inpaint an existing image",
+        "description": "Use this endpoint to do an inpaint generation.",
+        "operationId": "inpainting",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "prompt",
+                  "mask_blur",
+                  "inpainting_fill",
+                  "inpainting_full_res",
+                  "inpainting_mask_invert"
+                ],
+                "properties": {
+                  "imageUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "imageData": {
+                    "type": "string",
+                    "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+                    "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+                  },
+                  "maskUrl": {
+                    "type": "string",
+                    "example": "https://example.com/mask.png",
+                    "description": "Input Mask URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "maskData": {
+                    "type": "string",
+                    "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+                    "description": "Base-64 Encoded Mask Image Data. Supports JPEG and PNG formats.\n"
+                  },
+                  "model": {
+                    "type": "string",
+                    "example": "v1-5-pruned-emaonly.safetensors [d7049739]",
+                    "description": "Model Name"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "example": "puppies in a cloud, 4k",
+                    "description": "Inpainting Prompt"
+                  },
+                  "denoising_strength": {
+                    "type": "number",
+                    "example": 0.7,
+                    "description": "Strength of image transfomation"
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "example": "badly drawn",
+                    "description": "Negative Inpainting Prompt"
+                  },
+                  "style_preset": {
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "texture",
+                      "craft-clay"
+                    ]
+                  },
+                  "steps": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Steps"
+                  },
+                  "cfg_scale": {
+                    "type": "number",
+                    "example": 7,
+                    "description": "CFG Scale"
+                  },
+                  "seed": {
+                    "type": "number",
+                    "example": -1,
+                    "description": "Seed"
+                  },
+                  "upscale": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Enable 2x Upscale"
+                  },
+                  "mask_blur": {
+                    "type": "number",
+                    "example": 4,
+                    "description": "Mask Blur Strength"
+                  },
+                  "inpainting_fill": {
+                    "enum": [
+                      0,
+                      1,
+                      2,
+                      3
+                    ],
+                    "example": 1,
+                    "description": "\"0 - fill, 1 - original, 2 - latent noise, 3 - latent nothing\"\n"
+                  },
+                  "inpainting_mask_invert": {
+                    "type": "number",
+                    "example": 1,
+                    "description": "0 - Inpaint masked, 1 - Inpaint not masked"
+                  },
+                  "inpainting_full_res": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "0 - Whole picture, 1 - Only masked"
+                  },
+                  "sampler": {
+                    "type": "string",
+                    "example": "DPM++ 2M Karras"
+                  },
+                  "width": {
+                    "type": "number",
+                    "example": 512,
+                    "minimum": 1,
+                    "maximum": 1024,
+                    "description": "Image Width"
+                  },
+                  "height": {
+                    "type": "number",
+                    "example": 512,
+                    "minimum": 1,
+                    "maximum": 1024,
+                    "description": "Image Height"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sd/controlnet": {
+      "post": {
+        "tags": [
+          "SD 1.X Image Generation"
+        ],
+        "summary": "Create a Controlnet generation",
+        "description": "Use this endpoint to do a Controlnet generation.",
+        "operationId": "controlnet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "prompt"
+                ],
+                "properties": {
+                  "imageUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "imageData": {
+                    "type": "string",
+                    "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+                    "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+                  },
+                  "model": {
+                    "type": "string",
+                    "example": "v1-5-pruned-emaonly.safetensors [d7049739]",
+                    "default": "v1-5-pruned-emaonly.safetensors [d7049739]",
+                    "description": "Model Name"
+                  },
+                  "controlnet_model": {
+                    "enum": [
+                      "control_v11p_sd15_canny [d14c016b]",
+                      "control_v11f1p_sd15_depth [cfd03158]",
+                      "control_v11p_sd15_inpaint [ebff9138]",
+                      "control_v11e_sd15_ip2p [c4bb465c]",
+                      "control_v11p_sd15_lineart [43d4be0d]",
+                      "control_v11p_sd15s2_lineart_anime [3825e83e]",
+                      "control_v11p_sd15_mlsd [aca30ff0]",
+                      "control_v11p_sd15_normalbae [316696f1]",
+                      "control_v11p_sd15_openpose [cab727d4]",
+                      "control_v11p_sd15_scribble [d4ba51ff]",
+                      "control_v11p_sd15_seg [e1f51eb9]",
+                      "control_v11e_sd15_shuffle [526bfdae]",
+                      "control_v11p_sd15_softedge [a8575a2a]",
+                      "control_v11f1e_sd15_tile [a371b31b]"
+                    ]
+                  },
+                  "controlnet_module": {
+                    "enum": [
+                      "none",
+                      "canny",
+                      "depth",
+                      "depth_leres",
+                      "depth_leres++",
+                      "hed",
+                      "hed_safe",
+                      "mediapipe_face",
+                      "mlsd",
+                      "normal_map",
+                      "openpose",
+                      "openpose_hand",
+                      "openpose_face",
+                      "openpose_faceonly",
+                      "openpose_full",
+                      "clip_vision",
+                      "color",
+                      "pidinet",
+                      "pidinet_safe",
+                      "pidinet_sketch",
+                      "pidinet_scribble",
+                      "scribble_xdog",
+                      "scribble_hed",
+                      "segmentation",
+                      "threshold",
+                      "depth_zoe",
+                      "normal_bae",
+                      "oneformer_coco",
+                      "oneformer_ade20k",
+                      "lineart",
+                      "lineart_coarse",
+                      "lineart_anime",
+                      "lineart_standard",
+                      "shuffle",
+                      "tile_resample",
+                      "invert",
+                      "lineart_anime_denoise",
+                      "reference_only",
+                      "reference_adain",
+                      "reference_adain+attn",
+                      "inpaint",
+                      "inpaint_only",
+                      "inpaint_only+lama",
+                      "tile_colorfix",
+                      "tile_colorfix+sharp"
+                    ]
+                  },
+                  "control_mode": {
+                    "enum": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "description": "0 - Balanced\n1 - My prompt is more important\n2 - ControlNet is more important"
+                  },
+                  "threshold_a": {
+                    "type": "number",
+                    "example": 100,
+                    "description": "Preprocessor Low Threshold"
+                  },
+                  "threshold_b": {
+                    "type": "number",
+                    "example": 200,
+                    "description": "Preprocessor High Threshold"
+                  },
+                  "resize_mode": {
+                    "enum": [
+                      0,
+                      1,
+                      2
+                    ]
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "example": "puppies in a cloud, 4k",
+                    "description": "Image Prompt"
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "example": "badly drawn",
+                    "description": "Negative Image Prompt"
+                  },
+                  "style_preset": {
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "texture",
+                      "craft-clay"
+                    ]
+                  },
+                  "steps": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Steps"
+                  },
+                  "cfg_scale": {
+                    "type": "number",
+                    "example": 7,
+                    "description": "CFG Scale"
+                  },
+                  "seed": {
+                    "type": "number",
+                    "example": -1,
+                    "description": "Seed"
+                  },
+                  "sampler": {
+                    "type": "string",
+                    "example": "DPM++ 2M Karras"
+                  },
+                  "width": {
+                    "type": "number",
+                    "example": 512,
+                    "minimum": 1,
+                    "maximum": 1024,
+                    "description": "Image Width"
+                  },
+                  "height": {
+                    "type": "number",
+                    "example": 512,
+                    "minimum": 1,
+                    "maximum": 1024,
+                    "description": "Image Height"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sd/models": {
+      "get": {
+        "tags": [
+          "Model/Checkpoint Information",
+          "SD 1.X Image Generation"
+        ],
+        "summary": "Retrieve a list of available SD 1.X models",
+        "description": "Get a list of current available SD 1.X models.",
+        "operationId": "listModels",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "enum": [
+                    "absolutereality_V16.safetensors [37db0fc3]",
+                    "absolutereality_v181.safetensors [3d9d4d2b]",
+                    "analog-diffusion-1.0.ckpt [9ca13f02]",
+                    "anythingv3_0-pruned.ckpt [2700c435]",
+                    "anything-v4.5-pruned.ckpt [65745d25]",
+                    "anythingV5_PrtRE.safetensors [893e49b9]",
+                    "AOM3A3_orangemixs.safetensors [9600da17]",
+                    "childrensStories_v13D.safetensors [9dfaabcb]",
+                    "childrensStories_v1SemiReal.safetensors [a1c56dbb]",
+                    "childrensStories_v1ToonAnime.safetensors [2ec7b88b]",
+                    "cyberrealistic_v33.safetensors [82b0d085]",
+                    "deliberate_v2.safetensors [10ec4b29]",
+                    "dreamlike-anime-1.0.safetensors [4520e090]",
+                    "dreamlike-diffusion-1.0.safetensors [5c9fd6e0]",
+                    "dreamlike-photoreal-2.0.safetensors [fdcf65e7]",
+                    "dreamshaper_6BakedVae.safetensors [114c8abb]",
+                    "dreamshaper_7.safetensors [5cf5ae06]",
+                    "dreamshaper_8.safetensors [9d40847d]",
+                    "edgeOfRealism_eorV20.safetensors [3ed5de15]",
+                    "EimisAnimeDiffusion_V1.ckpt [4f828a15]",
+                    "elldreths-vivid-mix.safetensors [342d9d26]",
+                    "epicrealism_naturalSinRC1VAE.safetensors [90a4c676]",
+                    "ICantBelieveItsNotPhotography_seco.safetensors [4e7a3dfd]",
+                    "juggernaut_aftermath.safetensors [5e20c455]",
+                    "lyriel_v16.safetensors [68fceea2]",
+                    "mechamix_v10.safetensors [ee685731]",
+                    "meinamix_meinaV9.safetensors [2ec66ab0]",
+                    "meinamix_meinaV11.safetensors [b56ce717]",
+                    "openjourney_V4.ckpt [ca2f377f]",
+                    "portraitplus_V1.0.safetensors [1400e684]",
+                    "Realistic_Vision_V1.4-pruned-fp16.safetensors [8d21810b]",
+                    "Realistic_Vision_V2.0.safetensors [79587710]",
+                    "Realistic_Vision_V4.0.safetensors [29a7afaa]",
+                    "Realistic_Vision_V5.0.safetensors [614d1063]",
+                    "redshift_diffusion-V10.safetensors [1400e684]",
+                    "revAnimated_v122.safetensors [3f4fefd9]",
+                    "rundiffusionFX25D_v10.safetensors [cd12b0ee]",
+                    "rundiffusionFX_v10.safetensors [cd4e694d]",
+                    "sdv1_4.ckpt [7460a6fa]",
+                    "v1-5-pruned-emaonly.ckpt [81761151]",
+                    "shoninsBeautiful_v10.safetensors [25d8c546]",
+                    "theallys-mix-ii-churned.safetensors [5d9225a4]",
+                    "timeless-1.0.ckpt [7c4971d4]",
+                    "toonyou_beta6.safetensors [980f6b15]"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sd/samplers": {
+      "get": {
+        "tags": [
+          "Sampler Information",
+          "SD 1.X Image Generation"
+        ],
+        "summary": "Retrieve a list of available SD 1.X samplers.",
+        "description": "Get a list of current available SD 1.X samplers.",
+        "operationId": "listSamplers",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "enum": [
+                    "Euler",
+                    "Euler a",
+                    "LMS",
+                    "Heun",
+                    "DPM2",
+                    "DPM2 a",
+                    "DPM++ 2S a",
+                    "DPM++ 2M",
+                    "DPM++ SDE",
+                    "DPM fast",
+                    "DPM adaptive",
+                    "LMS Karras",
+                    "DPM2 Karras",
+                    "DPM2 a Karras",
+                    "DPM++ 2S a Karras",
+                    "DPM++ 2M Karras",
+                    "DPM++ SDE Karras",
+                    "DDIM",
+                    "PLMS"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sd/loras": {
+      "get": {
+        "tags": [
+          "Lora Information",
+          "SD 1.X Image Generation"
+        ],
+        "summary": "Retrieve a list of available SD 1.X loras",
+        "description": "Get a list of current available SD 1.X loras.\nGeneral Usage notation inside of a prompt: <lora:LoraName:weight>",
+        "operationId": "listLoras",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "enum": [
+                    "mib3_v10.safetensors",
+                    "age_slider_v20.safetensors",
+                    "AstralMecha.safetensors",
+                    "GrayClay_V1.5.5.safetensors",
+                    "linevichit3-v10.safetensors",
+                    "more_details_v10.safetensors",
+                    "StealthMecha.safetensors",
+                    "eye_size_slider_v1.safetensors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sd/embeddings": {
+      "get": {
+        "tags": [
+          "Embedding Information",
+          "SD 1.X Image Generation"
+        ],
+        "summary": "Retrieve a list of available SD 1.X embeddings",
+        "description": "Get a list of current available SD 1.X embeddings.",
+        "operationId": "listEmbeddings",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "enum": [
+                    "FastNegativeV2",
+                    "easynegative"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sdxl/generate": {
+      "post": {
+        "tags": [
+          "SDXL Image Generation"
+        ],
+        "summary": "Create an SDXL generation",
+        "description": "Use this endpoint to start generating an image on Prodia.",
+        "operationId": "sdxl-generate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "prompt"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "example": "sd_xl_base_1.0.safetensors [be9edd61]",
+                    "description": "Model Name"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "example": "puppies in a cloud, 4k",
+                    "description": "Image Prompt"
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "example": "badly drawn",
+                    "description": "Negative Image Prompt"
+                  },
+                  "style_preset": {
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "texture",
+                      "craft-clay"
+                    ]
+                  },
+                  "steps": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Steps"
+                  },
+                  "cfg_scale": {
+                    "type": "number",
+                    "example": 7,
+                    "description": "CFG Scale"
+                  },
+                  "seed": {
+                    "type": "number",
+                    "example": -1,
+                    "description": "Seed"
+                  },
+                  "sampler": {
+                    "type": "string",
+                    "example": "DPM++ 2M Karras"
+                  },
+                  "width": {
+                    "type": "number",
+                    "example": 1024,
+                    "minimum": 512,
+                    "maximum": 1536,
+                    "description": "Image Width"
+                  },
+                  "height": {
+                    "type": "number",
+                    "example": 1024,
+                    "minimum": 512,
+                    "maximum": 1536,
+                    "description": "Image Height"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sdxl/transform": {
+      "post": {
+        "tags": [
+          "SDXL Image Generation"
+        ],
+        "summary": "Transform an existing image",
+        "description": "Use this endpoint to do an 'img2img' style generation.",
+        "operationId": "sdxl-transform",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "prompt"
+                ],
+                "properties": {
+                  "imageUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "imageData": {
+                    "type": "string",
+                    "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+                    "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+                  },
+                  "model": {
+                    "type": "string",
+                    "example": "sd_xl_base_1.0.safetensors [be9edd61]",
+                    "description": "Model Name"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "example": "puppies in a cloud, 4k",
+                    "description": "Image Prompt"
+                  },
+                  "denoising_strength": {
+                    "type": "number",
+                    "example": 0.7,
+                    "description": "Strength of image transfomation"
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "example": "badly drawn",
+                    "description": "Negative Image Prompt"
+                  },
+                  "style_preset": {
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "texture",
+                      "craft-clay"
+                    ]
+                  },
+                  "steps": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Steps"
+                  },
+                  "cfg_scale": {
+                    "type": "number",
+                    "example": 7,
+                    "description": "CFG Scale"
+                  },
+                  "seed": {
+                    "type": "number",
+                    "example": -1,
+                    "description": "Seed"
+                  },
+                  "upscale": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Enable 2x Upscale"
+                  },
+                  "sampler": {
+                    "type": "string",
+                    "example": "DPM++ 2M Karras"
+                  },
+                  "width": {
+                    "type": "number",
+                    "example": 1024,
+                    "minimum": 512,
+                    "maximum": 1536,
+                    "description": "Image Width"
+                  },
+                  "height": {
+                    "type": "number",
+                    "example": 1024,
+                    "minimum": 512,
+                    "maximum": 1536,
+                    "description": "Image Height"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sdxl/inpainting": {
+      "post": {
+        "tags": [
+          "SDXL Image Generation"
+        ],
+        "summary": "Inpaint an existing image",
+        "description": "Use this endpoint to do an inpaint generation.",
+        "operationId": "sdxl-inpainting",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "prompt",
+                  "mask_blur",
+                  "inpainting_fill",
+                  "inpainting_full_res",
+                  "inpainting_mask_invert"
+                ],
+                "properties": {
+                  "imageUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "imageData": {
+                    "type": "string",
+                    "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+                    "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+                  },
+                  "maskUrl": {
+                    "type": "string",
+                    "example": "https://example.com/mask.png",
+                    "description": "Input Mask URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "maskData": {
+                    "type": "string",
+                    "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+                    "description": "Base-64 Encoded Mask Image Data. Supports JPEG and PNG formats.\n"
+                  },
+                  "model": {
+                    "type": "string",
+                    "example": "sd_xl_base_1.0.safetensors [be9edd61]",
+                    "description": "Model Name"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "example": "puppies in a cloud, 4k",
+                    "description": "Inpainting Prompt"
+                  },
+                  "denoising_strength": {
+                    "type": "number",
+                    "example": 0.7,
+                    "description": "Strength of image transfomation"
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "example": "badly drawn",
+                    "description": "Negative Inpainting Prompt"
+                  },
+                  "style_preset": {
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "texture",
+                      "craft-clay"
+                    ]
+                  },
+                  "steps": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Steps"
+                  },
+                  "cfg_scale": {
+                    "type": "number",
+                    "example": 7,
+                    "description": "CFG Scale"
+                  },
+                  "seed": {
+                    "type": "number",
+                    "example": -1,
+                    "description": "Seed"
+                  },
+                  "upscale": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Enable 2x Upscale"
+                  },
+                  "mask_blur": {
+                    "type": "number",
+                    "example": 4,
+                    "description": "Mask Blur Strength"
+                  },
+                  "inpainting_fill": {
+                    "type": "number",
+                    "example": 1,
+                    "description": "\"0 - fill, 1 - original, 2 - latent noise, 3 - latent nothing\"\n"
+                  },
+                  "inpainting_mask_invert": {
+                    "type": "number",
+                    "example": 1,
+                    "description": "0 - Inpaint masked, 1 - Inpaint not masked"
+                  },
+                  "inpainting_full_res": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "0 - Whole picture, 1 - Only masked"
+                  },
+                  "sampler": {
+                    "type": "string",
+                    "example": "DPM++ 2M Karras"
+                  },
+                  "width": {
+                    "type": "number",
+                    "example": 1024,
+                    "minimum": 512,
+                    "maximum": 1536,
+                    "description": "Image Width"
+                  },
+                  "height": {
+                    "type": "number",
+                    "example": 1024,
+                    "minimum": 512,
+                    "maximum": 1536,
+                    "description": "Image Height"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sdxl/models": {
+      "get": {
+        "tags": [
+          "Model/Checkpoint Information",
+          "SDXL Image Generation"
+        ],
+        "summary": "Retrieve a list of available SDXL models",
+        "description": "Get a list of current available SDXL models.",
+        "operationId": "listSdxlModels",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "enum": [
+                    "absolutereality_V16.safetensors [37db0fc3]",
+                    "absolutereality_v181.safetensors [3d9d4d2b]",
+                    "analog-diffusion-1.0.ckpt [9ca13f02]",
+                    "anythingv3_0-pruned.ckpt [2700c435]",
+                    "anything-v4.5-pruned.ckpt [65745d25]",
+                    "anythingV5_PrtRE.safetensors [893e49b9]",
+                    "AOM3A3_orangemixs.safetensors [9600da17]",
+                    "childrensStories_v13D.safetensors [9dfaabcb]",
+                    "childrensStories_v1SemiReal.safetensors [a1c56dbb]",
+                    "childrensStories_v1ToonAnime.safetensors [2ec7b88b]",
+                    "cyberrealistic_v33.safetensors [82b0d085]",
+                    "deliberate_v2.safetensors [10ec4b29]",
+                    "dreamlike-anime-1.0.safetensors [4520e090]",
+                    "dreamlike-diffusion-1.0.safetensors [5c9fd6e0]",
+                    "dreamlike-photoreal-2.0.safetensors [fdcf65e7]",
+                    "dreamshaper_6BakedVae.safetensors [114c8abb]",
+                    "dreamshaper_7.safetensors [5cf5ae06]",
+                    "dreamshaper_8.safetensors [9d40847d]",
+                    "edgeOfRealism_eorV20.safetensors [3ed5de15]",
+                    "EimisAnimeDiffusion_V1.ckpt [4f828a15]",
+                    "elldreths-vivid-mix.safetensors [342d9d26]",
+                    "epicrealism_naturalSinRC1VAE.safetensors [90a4c676]",
+                    "ICantBelieveItsNotPhotography_seco.safetensors [4e7a3dfd]",
+                    "juggernaut_aftermath.safetensors [5e20c455]",
+                    "lyriel_v16.safetensors [68fceea2]",
+                    "mechamix_v10.safetensors [ee685731]",
+                    "meinamix_meinaV9.safetensors [2ec66ab0]",
+                    "meinamix_meinaV11.safetensors [b56ce717]",
+                    "openjourney_V4.ckpt [ca2f377f]",
+                    "portraitplus_V1.0.safetensors [1400e684]",
+                    "Realistic_Vision_V1.4-pruned-fp16.safetensors [8d21810b]",
+                    "Realistic_Vision_V2.0.safetensors [79587710]",
+                    "Realistic_Vision_V4.0.safetensors [29a7afaa]",
+                    "Realistic_Vision_V5.0.safetensors [614d1063]",
+                    "redshift_diffusion-V10.safetensors [1400e684]",
+                    "revAnimated_v122.safetensors [3f4fefd9]",
+                    "rundiffusionFX25D_v10.safetensors [cd12b0ee]",
+                    "rundiffusionFX_v10.safetensors [cd4e694d]",
+                    "sdv1_4.ckpt [7460a6fa]",
+                    "v1-5-pruned-emaonly.ckpt [81761151]",
+                    "shoninsBeautiful_v10.safetensors [25d8c546]",
+                    "theallys-mix-ii-churned.safetensors [5d9225a4]",
+                    "timeless-1.0.ckpt [7c4971d4]",
+                    "toonyou_beta6.safetensors [980f6b15]"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sdxl/samplers": {
+      "get": {
+        "tags": [
+          "Sampler Information",
+          "SDXL Image Generation"
+        ],
+        "summary": "Retrieve a list of available SDXL samplers",
+        "description": "Get a list of current available SDXL samplers.",
+        "operationId": "listSdxlSamplers",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "enum": [
+                    "Euler",
+                    "Euler a",
+                    "LMS",
+                    "Heun",
+                    "DPM2",
+                    "DPM2 a",
+                    "DPM++ 2S a",
+                    "DPM++ 2M",
+                    "DPM++ SDE",
+                    "DPM fast",
+                    "DPM adaptive",
+                    "LMS Karras",
+                    "DPM2 Karras",
+                    "DPM2 a Karras",
+                    "DPM++ 2S a Karras",
+                    "DPM++ 2M Karras",
+                    "DPM++ SDE Karras",
+                    "DDIM",
+                    "PLMS"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sdxl/loras": {
+      "get": {
+        "tags": [
+          "Lora Information",
+          "SDXL Image Generation"
+        ],
+        "summary": "Retrieve a list of available SDXL loras",
+        "description": "Get a list of current available SDXL loras.\nGeneral Usage notation inside of a prompt: <lora:LoraName:weight>",
+        "operationId": "listSdxlLoras",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "enum": [
+                    "cyborg_style_xl-v10.safetensors",
+                    "LogoRedmond_v10.safetensors",
+                    "pixel-art-xl-v1.1.safetensors",
+                    "w00len_2500_v10.safetensors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/sdxl/embeddings": {
+      "get": {
+        "tags": [
+          "Embedding Information",
+          "SDXL Image Generation"
+        ],
+        "summary": "Retrieve a list of available SDXL embeddings.",
+        "description": "Get a list of current available SDXL embeddings.",
+        "operationId": "listSdxlEmbeddings",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "enum": [
+                    "FastNegativeV2",
+                    "easynegative"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/upscale": {
+      "post": {
+        "tags": [
+          "Image Upscaling"
+        ],
+        "summary": "Upscale An Image",
+        "description": "Create a higher resolution version an image.",
+        "operationId": "upscale",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "resize"
+                ],
+                "properties": {
+                  "imageUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "imageData": {
+                    "type": "string",
+                    "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+                    "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+                  },
+                  "resize": {
+                    "enum": [
+                      2,
+                      4
+                    ]
+                  },
+                  "model": {
+                    "allOf": [
+                      {
+                        "enum": [
+                          "ESRGAN_4x",
+                          "Lanczos",
+                          "Nearest",
+                          "LDSR",
+                          "R-ESRGAN 4x+",
+                          "R-ESRGAN 4x+ Anime6B",
+                          "ScuNET GAN",
+                          "ScuNET PSNR",
+                          "SwinIR 4x"
+                        ]
+                      },
+                      {
+                        "default": "ESRGAN_4x"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/faceswap": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Face Swap",
+        "description": "Swap a face inside an image (sourceUrl) with another (targetUrl).\n",
+        "operationId": "faceswap",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sourceUrl",
+                  "targetUrl"
+                ],
+                "properties": {
+                  "sourceUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Original image URL. Supports JPEG and PNG formats.\n"
+                  },
+                  "targetUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Image containing target face URL. Supports JPEG and PNG formats.\n"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/facerestore": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Face Restore",
+        "description": "Restore and enhance the face inside an image.\n",
+        "operationId": "facerestore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "imageUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "URL of Image containing a face to restore.\n"
+                  },
+                  "imageData": {
+                    "type": "string",
+                    "example": "https://example.com/image.png",
+                    "description": "Base-64 Encoded Image Data containing a face to restore.\n"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/photomaker": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "PhotoMaker",
+        "description": "Generate images with character consistency.\n",
+        "operationId": "photomaker",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "imageUrls": {
+                    "type": "array",
+                    "maxItems": 10,
+                    "items": {
+                      "type": "string",
+                      "example": "https://example.com/image.png"
+                    },
+                    "description": "URLs of images of input character.\n"
+                  },
+                  "imageData": {
+                    "type": "array",
+                    "maxItems": 10,
+                    "items": {
+                      "type": "string",
+                      "example": "dGhpcyBpcyBhbiBleGFtcGxl"
+                    },
+                    "description": "Base-64 encoded images of input character.\n"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "example": "man img wearing a hat",
+                    "description": "Image Prompt. Must include 'img' after character reference.\n"
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "example": "badly drawn",
+                    "description": "Negative Image Prompt"
+                  },
+                  "style_preset": {
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "texture",
+                      "craft-clay"
+                    ]
+                  },
+                  "strength": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Strength Percentage"
+                  },
+                  "steps": {
+                    "type": "number",
+                    "example": 20,
+                    "description": "Steps"
+                  },
+                  "seed": {
+                    "type": "number",
+                    "description": "Seed"
+                  },
+                  "cfg_scale": {
+                    "type": "number",
+                    "description": "CFG Scale"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Generation Parameters"
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    },
+    "/job/{jobId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "jobId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of Job"
+          }
+        ],
+        "tags": [
+          "Job Information"
+        ],
+        "summary": "Retrieve a generation",
+        "description": "Get information about a generation job, including status.",
+        "operationId": "getJob",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "string",
+                      "example": "xxxx-xxxx-xxxx-xxxx",
+                      "description": "Job ID"
+                    },
+                    "params": {
+                      "type": "object",
+                      "example": "{}",
+                      "description": "Job Generation Params"
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "generating",
+                        "failed",
+                        "succeeded"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Direct URL to generated image"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Key Not Recognised"
+          },
+          "402": {
+            "description": "API Access Not Enabled"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Prodia-Key"
+      }
+    },
+    "schemas": {
+      "Model": {
+        "enum": [
+          "absolutereality_V16.safetensors [37db0fc3]",
+          "absolutereality_v181.safetensors [3d9d4d2b]",
+          "analog-diffusion-1.0.ckpt [9ca13f02]",
+          "anythingv3_0-pruned.ckpt [2700c435]",
+          "anything-v4.5-pruned.ckpt [65745d25]",
+          "anythingV5_PrtRE.safetensors [893e49b9]",
+          "AOM3A3_orangemixs.safetensors [9600da17]",
+          "childrensStories_v13D.safetensors [9dfaabcb]",
+          "childrensStories_v1SemiReal.safetensors [a1c56dbb]",
+          "childrensStories_v1ToonAnime.safetensors [2ec7b88b]",
+          "cyberrealistic_v33.safetensors [82b0d085]",
+          "deliberate_v2.safetensors [10ec4b29]",
+          "dreamlike-anime-1.0.safetensors [4520e090]",
+          "dreamlike-diffusion-1.0.safetensors [5c9fd6e0]",
+          "dreamlike-photoreal-2.0.safetensors [fdcf65e7]",
+          "dreamshaper_6BakedVae.safetensors [114c8abb]",
+          "dreamshaper_7.safetensors [5cf5ae06]",
+          "dreamshaper_8.safetensors [9d40847d]",
+          "edgeOfRealism_eorV20.safetensors [3ed5de15]",
+          "EimisAnimeDiffusion_V1.ckpt [4f828a15]",
+          "elldreths-vivid-mix.safetensors [342d9d26]",
+          "epicrealism_naturalSinRC1VAE.safetensors [90a4c676]",
+          "ICantBelieveItsNotPhotography_seco.safetensors [4e7a3dfd]",
+          "juggernaut_aftermath.safetensors [5e20c455]",
+          "lyriel_v16.safetensors [68fceea2]",
+          "mechamix_v10.safetensors [ee685731]",
+          "meinamix_meinaV9.safetensors [2ec66ab0]",
+          "meinamix_meinaV11.safetensors [b56ce717]",
+          "openjourney_V4.ckpt [ca2f377f]",
+          "portraitplus_V1.0.safetensors [1400e684]",
+          "Realistic_Vision_V1.4-pruned-fp16.safetensors [8d21810b]",
+          "Realistic_Vision_V2.0.safetensors [79587710]",
+          "Realistic_Vision_V4.0.safetensors [29a7afaa]",
+          "Realistic_Vision_V5.0.safetensors [614d1063]",
+          "redshift_diffusion-V10.safetensors [1400e684]",
+          "revAnimated_v122.safetensors [3f4fefd9]",
+          "rundiffusionFX25D_v10.safetensors [cd12b0ee]",
+          "rundiffusionFX_v10.safetensors [cd4e694d]",
+          "sdv1_4.ckpt [7460a6fa]",
+          "v1-5-pruned-emaonly.ckpt [81761151]",
+          "shoninsBeautiful_v10.safetensors [25d8c546]",
+          "theallys-mix-ii-churned.safetensors [5d9225a4]",
+          "timeless-1.0.ckpt [7c4971d4]",
+          "toonyou_beta6.safetensors [980f6b15]"
+        ]
+      },
+      "Lora": {
+        "enum": [
+          "mib3_v10.safetensors",
+          "age_slider_v20.safetensors",
+          "AstralMecha.safetensors",
+          "GrayClay_V1.5.5.safetensors",
+          "linevichit3-v10.safetensors",
+          "more_details_v10.safetensors",
+          "StealthMecha.safetensors",
+          "eye_size_slider_v1.safetensors"
+        ]
+      },
+      "Embedding": {
+        "enum": [
+          "FastNegativeV2",
+          "easynegative"
+        ]
+      },
+      "SDXLModel": {
+        "enum": [
+          "sd_xl_base_1.0.safetensors [be9edd61]",
+          "dreamshaperXL10_alpha2.safetensors [c8afe2ef]",
+          "dynavisionXL_0411.safetensors [c39cc051]"
+        ]
+      },
+      "SDXLLora": {
+        "enum": [
+          "cyborg_style_xl-v10.safetensors",
+          "LogoRedmond_v10.safetensors",
+          "pixel-art-xl-v1.1.safetensors",
+          "w00len_2500_v10.safetensors"
+        ]
+      },
+      "SDXLEmbedding": {
+        "enum": [
+          "FastNegativeV2",
+          "easynegative"
+        ]
+      },
+      "ControlnetModel": {
+        "enum": [
+          "control_v11p_sd15_canny [d14c016b]",
+          "control_v11f1p_sd15_depth [cfd03158]",
+          "control_v11p_sd15_inpaint [ebff9138]",
+          "control_v11e_sd15_ip2p [c4bb465c]",
+          "control_v11p_sd15_lineart [43d4be0d]",
+          "control_v11p_sd15s2_lineart_anime [3825e83e]",
+          "control_v11p_sd15_mlsd [aca30ff0]",
+          "control_v11p_sd15_normalbae [316696f1]",
+          "control_v11p_sd15_openpose [cab727d4]",
+          "control_v11p_sd15_scribble [d4ba51ff]",
+          "control_v11p_sd15_seg [e1f51eb9]",
+          "control_v11e_sd15_shuffle [526bfdae]",
+          "control_v11p_sd15_softedge [a8575a2a]",
+          "control_v11f1e_sd15_tile [a371b31b]"
+        ]
+      },
+      "ControlnetModule": {
+        "enum": [
+          "none",
+          "canny",
+          "depth",
+          "depth_leres",
+          "depth_leres++",
+          "hed",
+          "hed_safe",
+          "mediapipe_face",
+          "mlsd",
+          "normal_map",
+          "openpose",
+          "openpose_hand",
+          "openpose_face",
+          "openpose_faceonly",
+          "openpose_full",
+          "clip_vision",
+          "color",
+          "pidinet",
+          "pidinet_safe",
+          "pidinet_sketch",
+          "pidinet_scribble",
+          "scribble_xdog",
+          "scribble_hed",
+          "segmentation",
+          "threshold",
+          "depth_zoe",
+          "normal_bae",
+          "oneformer_coco",
+          "oneformer_ade20k",
+          "lineart",
+          "lineart_coarse",
+          "lineart_anime",
+          "lineart_standard",
+          "shuffle",
+          "tile_resample",
+          "invert",
+          "lineart_anime_denoise",
+          "reference_only",
+          "reference_adain",
+          "reference_adain+attn",
+          "inpaint",
+          "inpaint_only",
+          "inpaint_only+lama",
+          "tile_colorfix",
+          "tile_colorfix+sharp"
+        ]
+      },
+      "Sampler": {
+        "enum": [
+          "Euler",
+          "Euler a",
+          "LMS",
+          "Heun",
+          "DPM2",
+          "DPM2 a",
+          "DPM++ 2S a",
+          "DPM++ 2M",
+          "DPM++ SDE",
+          "DPM fast",
+          "DPM adaptive",
+          "LMS Karras",
+          "DPM2 Karras",
+          "DPM2 a Karras",
+          "DPM++ 2S a Karras",
+          "DPM++ 2M Karras",
+          "DPM++ SDE Karras",
+          "DDIM",
+          "PLMS"
+        ]
+      },
+      "Upscaler": {
+        "enum": [
+          "ESRGAN_4x",
+          "Lanczos",
+          "Nearest",
+          "LDSR",
+          "R-ESRGAN 4x+",
+          "R-ESRGAN 4x+ Anime6B",
+          "ScuNET GAN",
+          "ScuNET PSNR",
+          "SwinIR 4x"
+        ]
+      },
+      "StylePreset": {
+        "enum": [
+          "3d-model",
+          "analog-film",
+          "anime",
+          "cinematic",
+          "comic-book",
+          "digital-art",
+          "enhance",
+          "fantasy-art",
+          "isometric",
+          "line-art",
+          "low-poly",
+          "neon-punk",
+          "origami",
+          "photographic",
+          "pixel-art",
+          "texture",
+          "craft-clay"
+        ]
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "job": {
+            "type": "string",
+            "example": "xxxx-xxxx-xxxx-xxxx",
+            "description": "Job ID"
+          },
+          "params": {
+            "type": "object",
+            "example": "{}",
+            "description": "Job Generation Params"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "generating",
+              "failed",
+              "succeeded"
+            ]
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Direct URL to generated image"
+          }
+        }
+      },
+      "GenerateRequest": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "example": "v1-5-pruned-emaonly.safetensors [d7049739]",
+            "description": "Model Name"
+          },
+          "prompt": {
+            "type": "string",
+            "example": "puppies in a cloud, 4k",
+            "description": "Image Prompt"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "example": "badly drawn",
+            "description": "Negative Image Prompt"
+          },
+          "style_preset": {
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "texture",
+              "craft-clay"
+            ]
+          },
+          "steps": {
+            "type": "number",
+            "example": 20,
+            "description": "Steps"
+          },
+          "cfg_scale": {
+            "type": "number",
+            "example": 7,
+            "description": "CFG Scale"
+          },
+          "seed": {
+            "type": "number",
+            "example": -1,
+            "description": "Seed"
+          },
+          "upscale": {
+            "type": "boolean",
+            "example": false,
+            "description": "Enable 2x Upscale"
+          },
+          "sampler": {
+            "type": "string",
+            "example": "DPM++ 2M Karras"
+          },
+          "width": {
+            "type": "number",
+            "example": 512,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Image Width"
+          },
+          "height": {
+            "type": "number",
+            "example": 512,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Image Height"
+          }
+        }
+      },
+      "SDXLGenerateRequest": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "example": "sd_xl_base_1.0.safetensors [be9edd61]",
+            "description": "Model Name"
+          },
+          "prompt": {
+            "type": "string",
+            "example": "puppies in a cloud, 4k",
+            "description": "Image Prompt"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "example": "badly drawn",
+            "description": "Negative Image Prompt"
+          },
+          "style_preset": {
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "texture",
+              "craft-clay"
+            ]
+          },
+          "steps": {
+            "type": "number",
+            "example": 20,
+            "description": "Steps"
+          },
+          "cfg_scale": {
+            "type": "number",
+            "example": 7,
+            "description": "CFG Scale"
+          },
+          "seed": {
+            "type": "number",
+            "example": -1,
+            "description": "Seed"
+          },
+          "sampler": {
+            "type": "string",
+            "example": "DPM++ 2M Karras"
+          },
+          "width": {
+            "type": "number",
+            "example": 1024,
+            "minimum": 512,
+            "maximum": 1536,
+            "description": "Image Width"
+          },
+          "height": {
+            "type": "number",
+            "example": 1024,
+            "minimum": 512,
+            "maximum": 1536,
+            "description": "Image Height"
+          }
+        }
+      },
+      "TransformRequest": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+          },
+          "imageData": {
+            "type": "string",
+            "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+            "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+          },
+          "model": {
+            "type": "string",
+            "example": "v1-5-pruned-emaonly.safetensors [d7049739]",
+            "description": "Model Name"
+          },
+          "prompt": {
+            "type": "string",
+            "example": "puppies in a cloud, 4k",
+            "description": "Image Prompt"
+          },
+          "denoising_strength": {
+            "type": "number",
+            "example": 0.7,
+            "description": "Strength of image transfomation"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "example": "badly drawn",
+            "description": "Negative Image Prompt"
+          },
+          "style_preset": {
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "texture",
+              "craft-clay"
+            ]
+          },
+          "steps": {
+            "type": "number",
+            "example": 20,
+            "description": "Steps"
+          },
+          "cfg_scale": {
+            "type": "number",
+            "example": 7,
+            "description": "CFG Scale"
+          },
+          "seed": {
+            "type": "number",
+            "example": -1,
+            "description": "Seed"
+          },
+          "upscale": {
+            "type": "boolean",
+            "example": false,
+            "description": "Enable 2x Upscale"
+          },
+          "sampler": {
+            "type": "string",
+            "example": "DPM++ 2M Karras"
+          },
+          "width": {
+            "type": "number",
+            "example": 512,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Image Width"
+          },
+          "height": {
+            "type": "number",
+            "example": 512,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Image Height"
+          }
+        }
+      },
+      "SDXLTransformRequest": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+          },
+          "imageData": {
+            "type": "string",
+            "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+            "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+          },
+          "model": {
+            "type": "string",
+            "example": "sd_xl_base_1.0.safetensors [be9edd61]",
+            "description": "Model Name"
+          },
+          "prompt": {
+            "type": "string",
+            "example": "puppies in a cloud, 4k",
+            "description": "Image Prompt"
+          },
+          "denoising_strength": {
+            "type": "number",
+            "example": 0.7,
+            "description": "Strength of image transfomation"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "example": "badly drawn",
+            "description": "Negative Image Prompt"
+          },
+          "style_preset": {
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "texture",
+              "craft-clay"
+            ]
+          },
+          "steps": {
+            "type": "number",
+            "example": 20,
+            "description": "Steps"
+          },
+          "cfg_scale": {
+            "type": "number",
+            "example": 7,
+            "description": "CFG Scale"
+          },
+          "seed": {
+            "type": "number",
+            "example": -1,
+            "description": "Seed"
+          },
+          "upscale": {
+            "type": "boolean",
+            "example": false,
+            "description": "Enable 2x Upscale"
+          },
+          "sampler": {
+            "type": "string",
+            "example": "DPM++ 2M Karras"
+          },
+          "width": {
+            "type": "number",
+            "example": 1024,
+            "minimum": 512,
+            "maximum": 1536,
+            "description": "Image Width"
+          },
+          "height": {
+            "type": "number",
+            "example": 1024,
+            "minimum": 512,
+            "maximum": 1536,
+            "description": "Image Height"
+          }
+        }
+      },
+      "InpaintingRequest": {
+        "type": "object",
+        "required": [
+          "prompt",
+          "mask_blur",
+          "inpainting_fill",
+          "inpainting_full_res",
+          "inpainting_mask_invert"
+        ],
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+          },
+          "imageData": {
+            "type": "string",
+            "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+            "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+          },
+          "maskUrl": {
+            "type": "string",
+            "example": "https://example.com/mask.png",
+            "description": "Input Mask URL. Supports JPEG and PNG formats.\n"
+          },
+          "maskData": {
+            "type": "string",
+            "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+            "description": "Base-64 Encoded Mask Image Data. Supports JPEG and PNG formats.\n"
+          },
+          "model": {
+            "type": "string",
+            "example": "v1-5-pruned-emaonly.safetensors [d7049739]",
+            "description": "Model Name"
+          },
+          "prompt": {
+            "type": "string",
+            "example": "puppies in a cloud, 4k",
+            "description": "Inpainting Prompt"
+          },
+          "denoising_strength": {
+            "type": "number",
+            "example": 0.7,
+            "description": "Strength of image transfomation"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "example": "badly drawn",
+            "description": "Negative Inpainting Prompt"
+          },
+          "style_preset": {
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "texture",
+              "craft-clay"
+            ]
+          },
+          "steps": {
+            "type": "number",
+            "example": 20,
+            "description": "Steps"
+          },
+          "cfg_scale": {
+            "type": "number",
+            "example": 7,
+            "description": "CFG Scale"
+          },
+          "seed": {
+            "type": "number",
+            "example": -1,
+            "description": "Seed"
+          },
+          "upscale": {
+            "type": "boolean",
+            "example": false,
+            "description": "Enable 2x Upscale"
+          },
+          "mask_blur": {
+            "type": "number",
+            "example": 4,
+            "description": "Mask Blur Strength"
+          },
+          "inpainting_fill": {
+            "enum": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "example": 1,
+            "description": "\"0 - fill, 1 - original, 2 - latent noise, 3 - latent nothing\"\n"
+          },
+          "inpainting_mask_invert": {
+            "type": "number",
+            "example": 1,
+            "description": "0 - Inpaint masked, 1 - Inpaint not masked"
+          },
+          "inpainting_full_res": {
+            "type": "boolean",
+            "example": false,
+            "description": "0 - Whole picture, 1 - Only masked"
+          },
+          "sampler": {
+            "type": "string",
+            "example": "DPM++ 2M Karras"
+          },
+          "width": {
+            "type": "number",
+            "example": 512,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Image Width"
+          },
+          "height": {
+            "type": "number",
+            "example": 512,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Image Height"
+          }
+        }
+      },
+      "SDXLInpaintingRequest": {
+        "type": "object",
+        "required": [
+          "prompt",
+          "mask_blur",
+          "inpainting_fill",
+          "inpainting_full_res",
+          "inpainting_mask_invert"
+        ],
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+          },
+          "imageData": {
+            "type": "string",
+            "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+            "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+          },
+          "maskUrl": {
+            "type": "string",
+            "example": "https://example.com/mask.png",
+            "description": "Input Mask URL. Supports JPEG and PNG formats.\n"
+          },
+          "maskData": {
+            "type": "string",
+            "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+            "description": "Base-64 Encoded Mask Image Data. Supports JPEG and PNG formats.\n"
+          },
+          "model": {
+            "type": "string",
+            "example": "sd_xl_base_1.0.safetensors [be9edd61]",
+            "description": "Model Name"
+          },
+          "prompt": {
+            "type": "string",
+            "example": "puppies in a cloud, 4k",
+            "description": "Inpainting Prompt"
+          },
+          "denoising_strength": {
+            "type": "number",
+            "example": 0.7,
+            "description": "Strength of image transfomation"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "example": "badly drawn",
+            "description": "Negative Inpainting Prompt"
+          },
+          "style_preset": {
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "texture",
+              "craft-clay"
+            ]
+          },
+          "steps": {
+            "type": "number",
+            "example": 20,
+            "description": "Steps"
+          },
+          "cfg_scale": {
+            "type": "number",
+            "example": 7,
+            "description": "CFG Scale"
+          },
+          "seed": {
+            "type": "number",
+            "example": -1,
+            "description": "Seed"
+          },
+          "upscale": {
+            "type": "boolean",
+            "example": false,
+            "description": "Enable 2x Upscale"
+          },
+          "mask_blur": {
+            "type": "number",
+            "example": 4,
+            "description": "Mask Blur Strength"
+          },
+          "inpainting_fill": {
+            "type": "number",
+            "example": 1,
+            "description": "\"0 - fill, 1 - original, 2 - latent noise, 3 - latent nothing\"\n"
+          },
+          "inpainting_mask_invert": {
+            "type": "number",
+            "example": 1,
+            "description": "0 - Inpaint masked, 1 - Inpaint not masked"
+          },
+          "inpainting_full_res": {
+            "type": "boolean",
+            "example": false,
+            "description": "0 - Whole picture, 1 - Only masked"
+          },
+          "sampler": {
+            "type": "string",
+            "example": "DPM++ 2M Karras"
+          },
+          "width": {
+            "type": "number",
+            "example": 1024,
+            "minimum": 512,
+            "maximum": 1536,
+            "description": "Image Width"
+          },
+          "height": {
+            "type": "number",
+            "example": 1024,
+            "minimum": 512,
+            "maximum": 1536,
+            "description": "Image Height"
+          }
+        }
+      },
+      "ControlNetRequest": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+          },
+          "imageData": {
+            "type": "string",
+            "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+            "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+          },
+          "model": {
+            "type": "string",
+            "example": "v1-5-pruned-emaonly.safetensors [d7049739]",
+            "default": "v1-5-pruned-emaonly.safetensors [d7049739]",
+            "description": "Model Name"
+          },
+          "controlnet_model": {
+            "enum": [
+              "control_v11p_sd15_canny [d14c016b]",
+              "control_v11f1p_sd15_depth [cfd03158]",
+              "control_v11p_sd15_inpaint [ebff9138]",
+              "control_v11e_sd15_ip2p [c4bb465c]",
+              "control_v11p_sd15_lineart [43d4be0d]",
+              "control_v11p_sd15s2_lineart_anime [3825e83e]",
+              "control_v11p_sd15_mlsd [aca30ff0]",
+              "control_v11p_sd15_normalbae [316696f1]",
+              "control_v11p_sd15_openpose [cab727d4]",
+              "control_v11p_sd15_scribble [d4ba51ff]",
+              "control_v11p_sd15_seg [e1f51eb9]",
+              "control_v11e_sd15_shuffle [526bfdae]",
+              "control_v11p_sd15_softedge [a8575a2a]",
+              "control_v11f1e_sd15_tile [a371b31b]"
+            ]
+          },
+          "controlnet_module": {
+            "enum": [
+              "none",
+              "canny",
+              "depth",
+              "depth_leres",
+              "depth_leres++",
+              "hed",
+              "hed_safe",
+              "mediapipe_face",
+              "mlsd",
+              "normal_map",
+              "openpose",
+              "openpose_hand",
+              "openpose_face",
+              "openpose_faceonly",
+              "openpose_full",
+              "clip_vision",
+              "color",
+              "pidinet",
+              "pidinet_safe",
+              "pidinet_sketch",
+              "pidinet_scribble",
+              "scribble_xdog",
+              "scribble_hed",
+              "segmentation",
+              "threshold",
+              "depth_zoe",
+              "normal_bae",
+              "oneformer_coco",
+              "oneformer_ade20k",
+              "lineart",
+              "lineart_coarse",
+              "lineart_anime",
+              "lineart_standard",
+              "shuffle",
+              "tile_resample",
+              "invert",
+              "lineart_anime_denoise",
+              "reference_only",
+              "reference_adain",
+              "reference_adain+attn",
+              "inpaint",
+              "inpaint_only",
+              "inpaint_only+lama",
+              "tile_colorfix",
+              "tile_colorfix+sharp"
+            ]
+          },
+          "control_mode": {
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "description": "0 - Balanced\n1 - My prompt is more important\n2 - ControlNet is more important"
+          },
+          "threshold_a": {
+            "type": "number",
+            "example": 100,
+            "description": "Preprocessor Low Threshold"
+          },
+          "threshold_b": {
+            "type": "number",
+            "example": 200,
+            "description": "Preprocessor High Threshold"
+          },
+          "resize_mode": {
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "prompt": {
+            "type": "string",
+            "example": "puppies in a cloud, 4k",
+            "description": "Image Prompt"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "example": "badly drawn",
+            "description": "Negative Image Prompt"
+          },
+          "style_preset": {
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "texture",
+              "craft-clay"
+            ]
+          },
+          "steps": {
+            "type": "number",
+            "example": 20,
+            "description": "Steps"
+          },
+          "cfg_scale": {
+            "type": "number",
+            "example": 7,
+            "description": "CFG Scale"
+          },
+          "seed": {
+            "type": "number",
+            "example": -1,
+            "description": "Seed"
+          },
+          "sampler": {
+            "type": "string",
+            "example": "DPM++ 2M Karras"
+          },
+          "width": {
+            "type": "number",
+            "example": 512,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Image Width"
+          },
+          "height": {
+            "type": "number",
+            "example": 512,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Image Height"
+          }
+        }
+      },
+      "UpscaleRequest": {
+        "type": "object",
+        "required": [
+          "resize"
+        ],
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Input Image URL. Supports JPEG and PNG formats.\n"
+          },
+          "imageData": {
+            "type": "string",
+            "example": "dGhpcyBpcyBhbiBleGFtcGxl",
+            "description": "Base-64 Encoded Image Data. Supports JPEG and PNG formats.\n"
+          },
+          "resize": {
+            "enum": [
+              2,
+              4
+            ]
+          },
+          "model": {
+            "allOf": [
+              {
+                "enum": [
+                  "ESRGAN_4x",
+                  "Lanczos",
+                  "Nearest",
+                  "LDSR",
+                  "R-ESRGAN 4x+",
+                  "R-ESRGAN 4x+ Anime6B",
+                  "ScuNET GAN",
+                  "ScuNET PSNR",
+                  "SwinIR 4x"
+                ]
+              },
+              {
+                "default": "ESRGAN_4x"
+              }
+            ]
+          }
+        }
+      },
+      "FaceSwapRequest": {
+        "type": "object",
+        "required": [
+          "sourceUrl",
+          "targetUrl"
+        ],
+        "properties": {
+          "sourceUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Original image URL. Supports JPEG and PNG formats.\n"
+          },
+          "targetUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Image containing target face URL. Supports JPEG and PNG formats.\n"
+          }
+        }
+      },
+      "FaceRestoreRequest": {
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "URL of Image containing a face to restore.\n"
+          },
+          "imageData": {
+            "type": "string",
+            "example": "https://example.com/image.png",
+            "description": "Base-64 Encoded Image Data containing a face to restore.\n"
+          }
+        }
+      },
+      "PhotoMakerRequest": {
+        "type": "object",
+        "properties": {
+          "imageUrls": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "type": "string",
+              "example": "https://example.com/image.png"
+            },
+            "description": "URLs of images of input character.\n"
+          },
+          "imageData": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "type": "string",
+              "example": "dGhpcyBpcyBhbiBleGFtcGxl"
+            },
+            "description": "Base-64 encoded images of input character.\n"
+          },
+          "prompt": {
+            "type": "string",
+            "example": "man img wearing a hat",
+            "description": "Image Prompt. Must include 'img' after character reference.\n"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "example": "badly drawn",
+            "description": "Negative Image Prompt"
+          },
+          "style_preset": {
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "texture",
+              "craft-clay"
+            ]
+          },
+          "strength": {
+            "type": "number",
+            "example": 20,
+            "description": "Strength Percentage"
+          },
+          "steps": {
+            "type": "number",
+            "example": 20,
+            "description": "Steps"
+          },
+          "seed": {
+            "type": "number",
+            "description": "Seed"
+          },
+          "cfg_scale": {
+            "type": "number",
+            "description": "CFG Scale"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}
