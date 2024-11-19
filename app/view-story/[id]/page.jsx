@@ -39,8 +39,6 @@ function ViewStory({ params }) {
     getStory();
   }, []);
 
-  
-
   const getStory = async () => {
     try {
       const res = await db
@@ -49,6 +47,7 @@ function ViewStory({ params }) {
         .where(eq(storyData.storyId, params.id));
       setStory(res[0]);
       notify("Happy reading");
+      document.title = `Story-Yetu | ${res[0]?.output?.story_title}`;
     } catch (e) {
       console.log(e);
       errorNotify("Check your internet connection");
